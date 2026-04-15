@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Systems - AD Automation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f6fa; }
+        .sidebar { width: 250px; background: #1a1a2e; color: white; min-height: 100vh; position: fixed; padding: 20px; }
+        .sidebar h2 { padding: 20px 0; border-bottom: 1px solid #333; margin-bottom: 20px; }
+        .nav-item { display: block; padding: 12px 15px; color: #aaa; text-decoration: none; border-radius: 5px; margin-bottom: 5px; }
+        .nav-item:hover, .nav-item.active { background: #0078d4; color: white; }
+        .main { margin-left: 250px; padding: 20px; }
+        .header { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>AD Automation</h2>
+        <a href="/dashboard" class="nav-item">Dashboard</a>
+        <a href="/systems" class="nav-item active">Systems</a>
+        <a href="/remote" class="nav-item">Remote</a>
+        <a href="/jobs" class="nav-item">Jobs</a>
+    </div>
+    <div class="main">
+        <div class="header"><h1>Systems Inventory</h1></div>
+        <div class="card"><p>System inventory managed via API. Use /api/systems endpoints to add/list systems.</p></div>
+    </div>
+</body>
+</html>

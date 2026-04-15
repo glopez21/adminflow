@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AD Automation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f6fa; }
+        .sidebar { width: 250px; background: #1a1a2e; color: white; min-height: 100vh; position: fixed; padding: 20px; }
+        .sidebar h2 { padding: 20px 0; border-bottom: 1px solid #333; margin-bottom: 20px; }
+        .nav-item { display: block; padding: 12px 15px; color: #aaa; text-decoration: none; border-radius: 5px; margin-bottom: 5px; }
+        .nav-item:hover, .nav-item.active { background: #0078d4; color: white; }
+        .main { margin-left: 250px; padding: 20px; }
+        .header { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .btn { padding: 10px 20px; background: #0078d4; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>AD Automation</h2>
+        <a href="/dashboard" class="nav-item">Dashboard</a>
+        <a href="/users" class="nav-item">Users</a>
+        <a href="/groups" class="nav-item">Groups</a>
+        <a href="/health" class="nav-item active">Health</a>
+        <a href="/security" class="nav-item">Security</a>
+        <a href="/remote" class="nav-item">Remote</a>
+    </div>
+    <div class="main">
+        <div class="header"><h1>Health Checks</h1></div>
+        <div class="card">
+            <h2>AD Health Status</h2>
+            <button class="btn" onclick="runHealthCheck()">Run Health Check</button>
+            <div id="healthResult" style="margin-top:15px;"></div>
+        </div>
+    </div>
+    <script>
+        async function runHealthCheck() {
+            document.getElementById('healthResult').innerHTML = 'Running...';
+            const res = await fetch('/api/health/check');
+            const data = await res.json();
+            document.getElementById('healthResult').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        }
+    </script>
+</body>
+</html>

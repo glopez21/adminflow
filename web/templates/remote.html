@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AD Automation System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f5f6fa; }
+        .sidebar { width: 250px; background: #1a1a2e; color: white; min-height: 100vh; position: fixed; padding: 20px; }
+        .sidebar h2 { padding: 20px 0; border-bottom: 1px solid #333; margin-bottom: 20px; }
+        .nav-item { display: block; padding: 12px 15px; color: #aaa; text-decoration: none; border-radius: 5px; margin-bottom: 5px; }
+        .nav-item:hover, .nav-item.active { background: #0078d4; color: white; }
+        .main { margin-left: 250px; padding: 20px; }
+        .header { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .header h1 { color: #1a1a2e; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #333; font-weight: 500; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        .btn { padding: 10px 20px; background: #0078d4; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .btn:hover { background: #005a9e; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; color: #333; }
+        .result { padding: 15px; border-radius: 5px; margin-top: 15px; }
+        .result.success { background: #d4edda; color: #155724; }
+        .result.error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>AD Automation</h2>
+        <a href="/dashboard" class="nav-item">Dashboard</a>
+        <a href="/users" class="nav-item">Users</a>
+        <a href="/groups" class="nav-item">Groups</a>
+        <a href="/health" class="nav-item">Health Checks</a>
+        <a href="/security" class="nav-item">Security</a>
+        <a href="/systems" class="nav-item">Systems</a>
+        <a href="/remote" class="nav-item active">Remote Connect</a>
+        <a href="/jobs" class="nav-item">Scheduled Jobs</a>
+        <a href="/settings" class="nav-item">Settings</a>
+        <a href="/logout" class="nav-item">Logout</a>
+    </div>
+    <div class="main">
+        <div class="header"><h1>Remote Connection</h1></div>
+        <div class="card">
+            <h2>Test Remote Connection</h2>
+            <div class="form-group">
+                <label>Target Host / IP</label>
+                <input type="text" id="target" placeholder="192.168.1.10 or hostname">
+            </div>
+            <div class="form-group">
+                <label>Connection Type</label>
+                <select id="connType">
+                    <option value="ssh">SSH</option>
+                    <option value="rdp">RDP</option>
+                    <option value="vnc">VNC</option>
+                    <option value="winrm">WinRM</option>
+                    <option value="smb">SMB</option>
+                    <option value="ping">Ping</option>
+                </select>
+            </div>
+            <button class="btn" onclick="testConnection()">Test Connection</button>
+            <div id="result"></div>
+        </div>
+        <div class="card">
+            <h2>Port Scanner</h2>
+            <div class="form-group">
+                <label>Host</label>
+                <input type="text" id="scanHost" placeholder="192.168.1.10">
+            </div>
+            <button class="btn" onclick="scanPorts()">Scan Common Ports</button>
+            <div id="scanResult"></div>
+        </div>
+    </div>
+    <script>
+        async function testConnection() {
+            const target = document.getElementById('target').value;
+            const type = document.getElementById('connType').value;
+            if (!target) { document.getElementById('result').innerHTML = '<div class="result error">Please enter a target</div>'; return; }
+            const res = await fetch('/api/remote/connect', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({target, type}) });
+            const data = await res.json();
+            document.getElementById('result').innerHTML = `<div class="result ${data.success ? 'success' : 'error'}">${data.message}</div>`;
+        }
+        async function scanPorts() {
+            const host = document.getElementById('scanHost').value;
+            if (!host) { document.getElementById('scanResult').innerHTML = '<div class="result error">Please enter a host</div>'; return; }
+            document.getElementById('scanResult').innerHTML = '<div class="result">Scanning...</div>';
+            const res = await fetch(`/api/systems/port-scan`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({host, ports: [22,23,80,443,445,3389,5985]}) });
+            const data = await res.json();
+            let html = '<table><tr><th>Port</th><th>Status</th><th>Service</th></tr>';
+            data.ports.forEach(p => { html += `<tr><td>${p.port}</td><td>${p.status}</td><td>${p.service}</td></tr>`; });
+            html += '</table>';
+            document.getElementById('scanResult').innerHTML = html;
+        }
+    </script>
+</body>
+</html>

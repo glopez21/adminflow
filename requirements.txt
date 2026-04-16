@@ -13,7 +13,7 @@ flask-login>=0.6.0
 pyad>=0.5.0
 
 # Cross-platform LDAP support
-python-ldap>=3.4.0
+ldap3>=2.9.0
 
 # Remote connections
 paramiko>=2.12.0

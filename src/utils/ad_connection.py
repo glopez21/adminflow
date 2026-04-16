@@ -13,7 +13,7 @@ Key Features:
 
 Requirements:
 - Windows: pyad and pywin32 libraries
-- Linux: python-ldap library
+- Linux: ldap3 library
 
 Usage:
     # Create connection with configuration
@@ -35,7 +35,7 @@ Usage:
 
 Note:
     The pyad library only works on Windows. For cross-platform support,
-    consider using python-ldap which works on Linux/macOS.
+    consider using ldap3 which works on Linux/macOS.
 """
 
 import logging
@@ -117,7 +117,7 @@ class ADConnection:
 
         Note:
             On Linux/macOS, this will return False with a warning since
-            pyad is Windows-only. Consider using python-ldap for
+            pyad is Windows-only. Consider using ldap3 for
             cross-platform compatibility.
         """
         try:
@@ -139,7 +139,7 @@ class ADConnection:
                 # pyad not available (non-Windows system)
                 logger.warning(
                     "pyad library not available. This module requires Windows "
-                    "with pywin32 installed. For Linux/macOS, use python-ldap."
+                    "with pywin32 installed. For Linux/macOS, use ldap3."
                 )
                 return False
 

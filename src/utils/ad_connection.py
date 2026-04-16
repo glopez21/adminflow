@@ -47,10 +47,8 @@ from pathlib import Path
 try:
     import pyad
 
-    # Flag indicating pyad is available (Windows only)
     PYWIN32_AVAILABLE = True
-except ImportError:
-    # pyad not available (likely on Linux/macOS)
+except Exception:
     PYWIN32_AVAILABLE = False
 
 # Get module logger

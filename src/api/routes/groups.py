@@ -31,11 +31,13 @@ Example:
 """
 
 import logging
-from fastapi import APIRouter, HTTPException
-from src.api.models.schemas import GroupCreate, GroupMemberAdd
-from src.utils.ad_connection import ADConnection
-from src.user_management.group_management import ADGroupManager
+
+from fastapi import APIRouter
+
 import config.settings as settings
+from src.api.models.schemas import GroupCreate, GroupMemberAdd
+from src.user_management.group_management import ADGroupManager
+from src.utils.ad_connection import ADConnection
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

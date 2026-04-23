@@ -28,12 +28,13 @@ Example:
 """
 
 import logging
+
 from fastapi import APIRouter
-from src.api.models.schemas import NetworkScanRequest, HealthCheckRequest
-from src.utils.ad_connection import ADConnection
-from src.security.ad_security import ADSecurityAuditor
+
 import config.settings as settings
-from src.api.routes import systems as system_tools
+from src.api.models.schemas import HealthCheckRequest, NetworkScanRequest
+from src.security.ad_security import ADSecurityAuditor
+from src.utils.ad_connection import ADConnection
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

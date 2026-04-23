@@ -41,14 +41,15 @@ Requirements:
     - apscheduler: For background job scheduling
 """
 
+import json
 import logging
+import os
 from datetime import datetime
-from typing import Callable, Dict, List
+from typing import Dict, List
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.interval import IntervalTrigger
-import json
-import os
 
 logger = logging.getLogger(__name__)
 
@@ -342,7 +343,6 @@ class BackupConfigJob(AutomationJob):
         Returns:
             dict: Backup status and file path, or error details
         """
-        import shutil
         import tarfile
 
         backup_dir = "reports/backups"

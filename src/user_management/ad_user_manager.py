@@ -42,10 +42,21 @@ Requirements:
 """
 
 import logging
+import os
 from datetime import datetime
-from typing import Optional, List, Dict
+from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
+
+if os.name == "nt":
+    try:
+        import pyad
+    except Exception:
+        pyad = None
+        logger.warning("pyad not available - limited functionality")
+else:
+    pyad = None
+    logger.warning("pyad not available on non-Windows platforms - limited functionality")
 
 
 class ADUserManager:
@@ -69,14 +80,7 @@ class ADUserManager:
             ad_connection: ADConnection instance for AD operations
         """
         self.conn = ad_connection
-        self.pyad = None
-
-        try:
-            import pyad
-
-            self.pyad = pyad
-        except ImportError:
-            logger.warning("pyad not available - limited functionality")
+        self.pyad = pyad
 
     def create_user(
         self,
@@ -356,9 +360,9 @@ class ADUserManager:
             return [{"status": "error", "message": "pyad not available"}]
 
         try:
-            from pyad import pyaduser
-            from pyad import pyadcontainer
             from datetime import timedelta
+
+            from pyad import pyadcontainer
 
             cutoff_date = datetime.now() - timedelta(days=days)
             inactive_users = []

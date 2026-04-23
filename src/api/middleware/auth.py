@@ -28,15 +28,15 @@ Example:
     curl -H "Authorization: Bearer <token>" http://localhost:8000/api/users
 """
 
+import hashlib
 import logging
 from datetime import datetime, timedelta
 from typing import Optional
-from fastapi import HTTPException, Depends, status
+
+import jwt
+from fastapi import Depends, HTTPException
 from fastapi.security import APIKeyHeader, APIKeyQuery
 from pydantic import BaseModel
-import hashlib
-import secrets
-import jwt
 
 # Get logger for this module
 logger = logging.getLogger(__name__)

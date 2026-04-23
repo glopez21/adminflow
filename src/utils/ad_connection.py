@@ -39,8 +39,6 @@ Note:
 """
 
 import logging
-from typing import Optional
-from pathlib import Path
 
 # Try to import pyad (Windows-only AD library)
 # pyad provides Python bindings for Active Directory via COM

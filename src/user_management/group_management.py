@@ -40,7 +40,7 @@ Requirements:
 """
 
 import logging
-from typing import List, Dict, Optional
+from typing import Dict, List
 
 logger = logging.getLogger(__name__)
 

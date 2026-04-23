@@ -48,10 +48,9 @@ Requirements:
 import logging
 import socket
 import subprocess
-import threading
-from typing import Optional, Dict
 from dataclasses import dataclass
 from enum import Enum
+from typing import Dict
 
 logger = logging.getLogger(__name__)
 

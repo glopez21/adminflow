@@ -195,9 +195,9 @@ class ADSecurityAuditor:
             return results
 
         try:
-            import config.settings as settings
-
             from pyad import pyadcontainer
+
+            import config.settings as settings
 
             domain = pyadcontainer.PyADContainer.from_dn(self.conn.base_dn)
 
@@ -284,9 +284,9 @@ class ADSecurityAuditor:
             return []
 
         try:
-            from pyad import pyaduser
-            from pyad import pyadcontainer
             from datetime import timedelta
+
+            from pyad import pyadcontainer
 
             cutoff_date = datetime.now() - timedelta(days=days)
             inactive_accounts = []
@@ -384,7 +384,6 @@ class ADSecurityAuditor:
             return {"status": "error", "message": "pyad not available"}
 
         try:
-            from pyad import pyadgroup
             from pyad import pyadcontainer
 
             results = {

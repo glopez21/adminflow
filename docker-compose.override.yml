@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8000:8000"
+    environment:
+      - AD_SERVER=dc01.local
+      - AD_BASE_DN=dc=local
+      - AD_USER=admin@local
+      - AD_PASSWORD=admin
+      - API_SECRET_KEY=dev-secret-key
+      - JWT_SECRET_KEY=dev-jwt-secret
+    volumes:
+      - .:/app
+    command: uvicorn src.api.main:app --reload --host 0.0.0.0 --port 8000
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=web.app
+      - AD_SERVER=dc01.local
+      - AD_BASE_DN=dc=local
+      - AD_USER=admin@local
+      - AD_PASSWORD=admin
+    volumes:
+      - .:/app
+    command: flask run --host=0.0.0.0 --port=5000
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - .:/app
+    command: celery -A src.tasks.celery worker --loglevel=debug

@@ -29,12 +29,14 @@ Example:
 """
 
 import logging
-from typing import List, Optional
+from typing import List
+
 from fastapi import APIRouter, HTTPException
-from src.api.models.schemas import UserCreate, UserUpdate, UserResponse
-from src.utils.ad_connection import ADConnection
-from src.user_management.ad_user_manager import ADUserManager
+
 import config.settings as settings
+from src.api.models.schemas import UserCreate
+from src.user_management.ad_user_manager import ADUserManager
+from src.utils.ad_connection import ADConnection
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

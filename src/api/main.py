@@ -31,9 +31,9 @@ API Documentation:
 """
 
 import logging
+import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
-import sys
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -43,14 +43,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+import config.settings as settings
+
 # Import route modules - each handles a specific domain
 # Routes are imported and registered with the app
-from src.api.routes import users, groups, health, security, migration, systems
+from src.api.routes import groups, health, migration, security, systems, users
 
 # Utility imports
 from src.utils.logger import setup_logging
-import config.settings as settings
-
 
 # ============================================================================
 # LIFESPAN CONTEXT MANAGER

@@ -42,6 +42,13 @@ dependencies = [
     "pyjwt>=2.8.0",
     "pytest>=7.0.0",
     "pytest-mock>=3.10.0",
+    "sqlalchemy>=2.0.0",
+    "alembic>=1.12.0",
+    "python-dotenv>=1.0.0",
+    "pydantic-settings>=2.0.0",
+    "structlog>=23.0.0",
+    "celery>=5.3.0",
+    "redis>=5.0.0",
 ]
 
 [dependency-groups]
@@ -49,16 +56,35 @@ dev = [
     "ruff>=0.1.0",
     "mypy>=1.0.0",
     "black>=23.0.0",
+    "pytest-cov>=4.0.0",
+    "codecov>=2.0.0",
 ]
 
 [project.scripts]
 adminflow = "src.main:main"
 
-[tool.uv]
+[tool.ruff]
+line-length = 100
+target-version = "py39"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src"]
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --strict-markers"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]

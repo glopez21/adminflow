@@ -37,14 +37,16 @@ Example:
          http://localhost:8000/api/systems/remote-connect
 """
 
+import json
 import logging
 import socket
 import subprocess
-import json
-from typing import List, Optional, Dict
-from fastapi import APIRouter, HTTPException
-from src.api.models.schemas import SystemCreate, SystemUpdate, RemoteConnectionRequest
 from datetime import datetime
+from typing import Dict, List, Optional
+
+from fastapi import APIRouter, HTTPException
+
+from src.api.models.schemas import RemoteConnectionRequest, SystemCreate, SystemUpdate
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -63,7 +65,7 @@ def load_systems() -> List[Dict]:
     """
     try:
         if os.path.exists(SYSTEMS_DB):
-            with open(SYSTEMS_DB, "r") as f:
+            with open(SYSTEMS_DB) as f:
                 return json.load(f)
     except Exception as e:
         logger.error(f"Failed to load systems: {e}")

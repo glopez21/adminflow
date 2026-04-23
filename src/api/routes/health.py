@@ -25,10 +25,12 @@ Example:
 """
 
 import logging
+
 from fastapi import APIRouter
-from src.utils.ad_connection import ADConnection
-from src.health_checks.ad_health import ADHealthChecker
+
 import config.settings as settings
+from src.health_checks.ad_health import ADHealthChecker
+from src.utils.ad_connection import ADConnection
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

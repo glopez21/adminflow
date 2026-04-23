@@ -29,13 +29,14 @@ Example:
 """
 
 import logging
-from fastapi import APIRouter, UploadFile, File, HTTPException
-from fastapi.responses import FileResponse
-from src.utils.ad_connection import ADConnection
-from src.migration.ad_migration import ADMigrationManager
-import config.settings as settings
-import tempfile
 import os
+import tempfile
+
+from fastapi import APIRouter, File, HTTPException, UploadFile
+
+import config.settings as settings
+from src.migration.ad_migration import ADMigrationManager
+from src.utils.ad_connection import ADConnection
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

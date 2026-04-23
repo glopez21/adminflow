@@ -51,29 +51,28 @@ Security Warning:
 """
 
 import logging
-import os
 import sys
 from pathlib import Path
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from flask import Flask, render_template, jsonify, request, redirect, url_for, flash
+from flask import Flask, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import (
     LoginManager,
     UserMixin,
-    login_user,
-    login_required,
-    logout_user,
     current_user,
+    login_required,
+    login_user,
+    logout_user,
 )
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
+
 import config.settings as settings
-from src.utils.ad_connection import ADConnection
-from src.user_management.ad_user_manager import ADUserManager
-from src.user_management.group_management import ADGroupManager
 from src.health_checks.ad_health import ADHealthChecker
 from src.security.ad_security import ADSecurityAuditor
+from src.user_management.ad_user_manager import ADUserManager
+from src.utils.ad_connection import ADConnection
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

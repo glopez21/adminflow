@@ -36,13 +36,12 @@ Requirements:
     - Optional: concurrent.futures for parallel scanning
 """
 
+import ipaddress
 import logging
 import socket
 import subprocess
-import ipaddress
-from typing import List, Dict, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
-import threading
+from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 

@@ -33,10 +33,10 @@ Requirements:
     - CSV file with user data
 """
 
-import logging
 import csv
-from typing import List, Dict, Optional
+import logging
 from datetime import datetime
+from typing import Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -93,7 +93,7 @@ class ADMigrationManager:
         failed = []
 
         try:
-            with open(csv_file, "r") as f:
+            with open(csv_file) as f:
                 reader = csv.DictReader(f)
                 users = list(reader)
 

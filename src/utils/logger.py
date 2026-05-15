@@ -33,7 +33,7 @@ Files:
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -151,7 +151,7 @@ class ADLogger:
             ... )
         """
         # Generate timestamp in ISO format
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 
         # Build log message with structured format
         message = f"[{timestamp}] {operation} - {status}"

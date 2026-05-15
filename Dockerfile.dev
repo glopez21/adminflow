@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml uv.lock ./
-RUN pip install uv && uv sync --frozen --no-install-self
+RUN pip install uv && uv sync --frozen
 
 ENV PYTHONPATH="/app" \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -19,4 +19,4 @@ ENV PYTHONPATH="/app" \
 
 EXPOSE 8000 5000
 
-CMD ["bash"]
+CMD ["uv", "run", "demo"]

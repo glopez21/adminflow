@@ -29,7 +29,7 @@ Example:
          -d '{"hostname": "web-server-01", "ip_address": "192.168.1.100", \
              "system_type": "server", "os": "Ubuntu 22.04"}' \
          http://localhost:8000/api/systems/
-    
+
     # Test SSH connectivity
     curl -X POST -H "Authorization: Bearer <token>" \
          -H "Content-Type: application/json" \
@@ -39,10 +39,10 @@ Example:
 
 import json
 import logging
+import os
 import socket
 import subprocess
-from datetime import datetime
-from typing import Dict, List, Optional
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException
 
@@ -54,15 +54,7 @@ router = APIRouter()
 SYSTEMS_DB = "reports/systems.json"
 
 
-def load_systems() -> List[Dict]:
-    """
-    Load systems from local JSON database.
-
-    Reads the systems inventory from the JSON file stored in reports.
-
-    Returns:
-        List[Dict]: List of system records, empty list if file doesn't exist
-    """
+def load_systems() -> list[dict]:
     try:
         if os.path.exists(SYSTEMS_DB):
             with open(SYSTEMS_DB) as f:
@@ -72,24 +64,10 @@ def load_systems() -> List[Dict]:
     return []
 
 
-def save_systems(systems: List[Dict]) -> None:
-    """
-    Save systems list to local JSON database.
-
-    Writes the systems inventory to the JSON file, creating
-    the directory if it doesn't exist.
-
-    Args:
-        systems: List of system records to save
-    """
-    import os
-
+def save_systems(systems: list[dict]) -> None:
     os.makedirs(os.path.dirname(SYSTEMS_DB), exist_ok=True)
     with open(SYSTEMS_DB, "w") as f:
         json.dump(systems, f, indent=2)
-
-
-import os
 
 
 @router.post("/", response_model=dict)
@@ -118,7 +96,7 @@ async def add_system(system: SystemCreate):
         "location": system.location,
         "tags": system.tags or [],
         "status": "active",
-        "added": datetime.now().isoformat(),
+        "added": datetime.now(timezone.utc).isoformat(),
     }
 
     systems.append(system_data)
@@ -129,9 +107,9 @@ async def add_system(system: SystemCreate):
 
 @router.get("/", response_model=dict)
 async def list_systems(
-    system_type: Optional[str] = None,
-    status: Optional[str] = None,
-    tag: Optional[str] = None,
+    system_type: str | None = None,
+    status: str | None = None,
+    tag: str | None = None,
 ):
     """
     List all systems with optional filters.
@@ -209,7 +187,7 @@ async def update_system(system_id: int, update: SystemUpdate):
         if system.get("id") == system_id:
             update_data = update.dict(exclude_unset=True)
             system.update(update_data)
-            system["updated"] = datetime.now().isoformat()
+            system["updated"] = datetime.now(timezone.utc).isoformat()
             save_systems(systems)
             return {"status": "success", "system": system}
 
@@ -256,7 +234,7 @@ async def remote_connect(request: RemoteConnectionRequest):
     result = {
         "target": target,
         "type": conn_type,
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "status": "pending",
     }
 
@@ -289,7 +267,7 @@ async def remote_connect(request: RemoteConnectionRequest):
             "type": conn_type,
             "status": "error",
             "error": str(e),
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
 
@@ -313,7 +291,7 @@ async def ping_host_api(host: str, count: int = 4):
 
 
 @router.post("/port-scan")
-async def port_scan(host: str, ports: List[int] = None):
+async def port_scan(host: str, ports: list[int] | None = None):
     """
     Scan ports on a host.
 
@@ -342,7 +320,7 @@ async def port_scan(host: str, ports: List[int] = None):
     return {"host": host, "ports": results}
 
 
-def ping_host(host: str, count: int = 4) -> Dict:
+def ping_host(host: str, count: int = 4) -> dict:
     """
     Ping a host and return results.
 
@@ -357,7 +335,7 @@ def ping_host(host: str, count: int = 4) -> Dict:
         dict: Ping status and statistics
     """
     try:
-        param = "-n" if subprocess.os.name == "nt" else "-c"
+        param = "-n" if os.name == "nt" else "-c"
         command = ["ping", param, str(count), host]
 
         result = subprocess.run(command, capture_output=True, text=True, timeout=30)
@@ -379,7 +357,7 @@ def ping_host(host: str, count: int = 4) -> Dict:
         return {"status": "error", "target": host, "error": str(e)}
 
 
-def check_port(host: str, port: int, timeout: int = 5) -> Dict:
+def check_port(host: str, port: int, timeout: int = 5) -> dict:
     """
     Check if a port is open on a host.
 
@@ -456,7 +434,7 @@ def get_service_name(port: int) -> str:
     return services.get(port, "Unknown")
 
 
-def test_connection(host: str, conn_type: str, port: int = None) -> Dict:
+def test_connection(host: str, conn_type: str, port: int | None = None) -> dict:
     """
     Test various remote connection types.
 

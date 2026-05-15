@@ -8,7 +8,7 @@ and Azure AD environments.
 
 Classes:
     AzureADConfig: Configuration dataclass for Azure AD connection
-    GraphAPIException: Custom exception for Graph API errors
+    GraphAPIError: Custom exception for Graph API errors
     AzureADManager: Main class for Azure AD operations
     HybridADSync: Synchronization manager for hybrid AD environments
 
@@ -54,7 +54,7 @@ Environment Variables:
 
 import logging
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +86,7 @@ class AzureADConfig:
     client_id: str
     client_secret: str
     redirect_uri: str = "http://localhost"
-    scope: List[str] = None
+    scope: list[str] | None = None
 
     def __post_init__(self):
         """Set default Graph API scopes if none provided."""
@@ -99,7 +99,7 @@ class AzureADConfig:
             ]
 
 
-class GraphAPIException(Exception):
+class GraphAPIError(Exception):
     """
     Custom exception for Microsoft Graph API errors.
 
@@ -138,7 +138,7 @@ class AzureADManager:
             config: AzureADConfig instance with tenant and app credentials
         """
         self.config = config
-        self.access_token = None
+        self.access_token: str | None = None
         self.base_url = "https://graph.microsoft.com/v1.0"
 
     def get_token(self) -> str:
@@ -153,7 +153,7 @@ class AzureADManager:
             str: Access token string for Graph API authorization
 
         Raises:
-            GraphAPIException: If token request fails
+            GraphAPIError: If token request fails
 
         Note:
             Uses client_credentials grant type which requires
@@ -167,7 +167,7 @@ class AzureADManager:
             data = {
                 "client_id": self.config.client_id,
                 "client_secret": self.config.client_secret,
-                "scope": " ".join(self.config.scope),
+                "scope": " ".join(self.config.scope or []),
                 "grant_type": "client_credentials",
             }
 
@@ -177,13 +177,12 @@ class AzureADManager:
                 token_data = response.json()
                 self.access_token = token_data["access_token"]
                 return self.access_token
-            else:
-                raise GraphAPIException(f"Failed to get token: {response.text}")
+            raise GraphAPIError(f"Failed to get token: {response.text}")
 
         except ImportError:
-            raise GraphAPIException("requests library required")
+            raise GraphAPIError("requests library required") from None
 
-    def _make_request(self, method: str, endpoint: str, data: dict = None) -> Dict:
+    def _make_request(self, method: str, endpoint: str, data: dict | None = None) -> dict:
         """
         Make an authenticated request to Microsoft Graph API.
 
@@ -199,7 +198,7 @@ class AzureADManager:
             dict: Parsed JSON response from the API
 
         Raises:
-            GraphAPIException: If request fails or returns error status
+            GraphAPIError: If request fails or returns error status
 
         Note:
             Automatically obtains access token if not already cached.
@@ -225,16 +224,16 @@ class AzureADManager:
         elif method == "DELETE":
             response = requests.delete(url, headers=headers, timeout=30)
         else:
-            raise GraphAPIException(f"Unsupported method: {method}")
+            raise GraphAPIError(f"Unsupported method: {method}")
 
         if response.status_code >= 400:
-            raise GraphAPIException(
+            raise GraphAPIError(
                 f"API error: {response.status_code} - {response.text}"
             )
 
         return response.json()
 
-    def get_user(self, user_id: str) -> Dict:
+    def get_user(self, user_id: str) -> dict:
         """
         Get user by ID or user principal name.
 
@@ -251,7 +250,7 @@ class AzureADManager:
         """
         return self._make_request("GET", f"/users/{user_id}")
 
-    def list_users(self, filter: str = None, top: int = 100) -> List[Dict]:
+    def list_users(self, filter: str | None = None, top: int = 100) -> list[dict]:
         """
         List users in Azure AD.
 
@@ -275,7 +274,7 @@ class AzureADManager:
         result = self._make_request("GET", endpoint)
         return result.get("value", [])
 
-    def create_user(self, user_data: Dict) -> Dict:
+    def create_user(self, user_data: dict) -> dict:
         """
         Create new Azure AD user.
 
@@ -301,7 +300,7 @@ class AzureADManager:
         """
         return self._make_request("POST", "/users", user_data)
 
-    def update_user(self, user_id: str, user_data: Dict) -> Dict:
+    def update_user(self, user_id: str, user_data: dict) -> dict:
         """
         Update Azure AD user properties.
 
@@ -354,7 +353,7 @@ class AzureADManager:
         self._make_request("PATCH", f"/users/{user_id}", data)
         return True
 
-    def list_groups(self, filter: str = None) -> List[Dict]:
+    def list_groups(self, filter: str | None = None) -> list[dict]:
         """
         List Azure AD groups.
 
@@ -373,7 +372,7 @@ class AzureADManager:
         result = self._make_request("GET", endpoint)
         return result.get("value", [])
 
-    def get_group_members(self, group_id: str) -> List[Dict]:
+    def get_group_members(self, group_id: str) -> list[dict]:
         """
         Get all members of a group.
 
@@ -425,7 +424,7 @@ class AzureADManager:
         self._make_request("DELETE", f"/groups/{group_id}/members/{user_id}")
         return True
 
-    def list_devices(self, filter: str = None) -> List[Dict]:
+    def list_devices(self, filter: str | None = None) -> list[dict]:
         """
         List registered devices in Azure AD.
 
@@ -445,7 +444,7 @@ class AzureADManager:
         result = self._make_request("GET", endpoint)
         return result.get("value", [])
 
-    def get_device(self, device_id: str) -> Dict:
+    def get_device(self, device_id: str) -> dict:
         """
         Get device details by ID.
 
@@ -475,7 +474,7 @@ class AzureADManager:
         self._make_request("PATCH", f"/devices/{device_id}", {"accountEnabled": False})
         return True
 
-    def list_applications(self) -> List[Dict]:
+    def list_applications(self) -> list[dict]:
         """
         List enterprise applications in Azure AD.
 
@@ -487,7 +486,7 @@ class AzureADManager:
         result = self._make_request("GET", "/applications")
         return result.get("value", [])
 
-    def get_service_principals(self) -> List[Dict]:
+    def get_service_principals(self) -> list[dict]:
         """
         List service principals in Azure AD.
 
@@ -527,7 +526,7 @@ class HybridADSync:
         """
         self.azure = azure_manager
 
-    def sync_users(self, onprem_users: List[Dict]) -> Dict:
+    def sync_users(self, onprem_users: list[dict]) -> dict:
         """
         Synchronize users from on-prem AD to Azure AD.
 
@@ -545,7 +544,7 @@ class HybridADSync:
             [{"userPrincipalName": "jsmith@domain.com",
               "displayName": "John Smith", ...}, ...]
         """
-        results = {"created": 0, "updated": 0, "errors": []}
+        results: dict[str, Any] = {"created": 0, "updated": 0, "errors": []}
 
         azure_users = self.azure.list_users()
         azure_user_map = {u.get("userPrincipalName"): u for u in azure_users}
@@ -557,7 +556,7 @@ class HybridADSync:
                 if upn in azure_user_map:
                     azure_id = azure_user_map[upn].get("id")
                     self.azure.update_user(
-                        azure_id,
+                        str(azure_id),
                         {
                             "displayName": user.get("displayName"),
                             "jobTitle": user.get("title"),
@@ -587,7 +586,7 @@ class HybridADSync:
 
         return results
 
-    def compare_groups(self, onprem_groups: List[str]) -> Dict:
+    def compare_groups(self, onprem_groups: list[str]) -> dict:
         """
         Compare on-prem groups with Azure AD groups.
 
@@ -610,7 +609,7 @@ class HybridADSync:
         azure_groups = self.azure.list_groups()
         azure_group_names = {g.get("displayName"): g for g in azure_groups}
 
-        comparison = {"matching": [], "only_onprem": [], "only_azure": []}
+        comparison: dict[str, list[str]] = {"matching": [], "only_onprem": [], "only_azure": []}
 
         for group in onprem_groups:
             if group in azure_group_names:
@@ -619,13 +618,13 @@ class HybridADSync:
                 comparison["only_onprem"].append(group)
 
         for group_name in azure_group_names:
-            if group_name not in onprem_groups:
+            if group_name is not None and group_name not in onprem_groups:
                 comparison["only_azure"].append(group_name)
 
         return comparison
 
 
-def create_azure_manager_from_config() -> Optional[AzureADManager]:
+def create_azure_manager_from_config() -> AzureADManager | None:
     """
     Create AzureADManager from environment variables.
 
@@ -661,8 +660,8 @@ def create_azure_manager_from_config() -> Optional[AzureADManager]:
         logger.warning("Azure AD credentials not configured")
         return None
 
-    config = AzureADConfig(
-        tenant_id=tenant_id, client_id=client_id, client_secret=client_secret
-    )
+    if tenant_id is None or client_id is None or client_secret is None:
+        return None
+    config = AzureADConfig(tenant_id=tenant_id, client_id=client_id, client_secret=client_secret)
 
     return AzureADManager(config)

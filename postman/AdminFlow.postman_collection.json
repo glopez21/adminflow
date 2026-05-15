@@ -1,0 +1,95 @@
+{
+  "info": {
+    "name": "AdminFlow API",
+    "description": "AdminFlow - Python-based automation platform for Microsoft Active Directory management.\n\n## Authentication\nTwo methods supported:\n1. **API Key**: Set header `X-API-Key: ad-admin-key-001`\n2. **JWT Token**: POST `/api/auth/token` then use `Authorization: Bearer <token>`\n\n## Base URL\n`http://localhost:8000`",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      { "key": "key", "value": "X-API-Key", "type": "string" },
+      { "key": "value", "value": "ad-admin-key-001", "type": "string" },
+      { "key": "in", "value": "header", "type": "string" }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. Server Status",
+      "item": [
+        { "name": "Root", "request": { "method": "GET", "header": [], "url": { "raw": "{{base_url}}/", "host": ["{{base_url}}"], "path": [""] }, "auth": { "type": "noauth" } } },
+        { "name": "Status", "request": { "method": "GET", "header": [], "url": { "raw": "{{base_url}}/api/status", "host": ["{{base_url}}"], "path": ["api", "status"] }, "auth": { "type": "noauth" } } }
+      ]
+    },
+    {
+      "name": "2. Authentication",
+      "item": [
+        { "name": "Login (JWT)", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/x-www-form-urlencoded" } ], "body": { "mode": "urlencoded", "urlencoded": [ { "key": "username", "value": "admin" }, { "key": "password", "value": "admin123" } ] }, "url": { "raw": "{{base_url}}/api/auth/token", "host": ["{{base_url}}"], "path": ["api", "auth", "token"] } } }
+      ]
+    },
+    {
+      "name": "3. User Management",
+      "item": [
+        { "name": "Create User", "request": { "method": "POST", "body": { "mode": "raw", "raw": "{\n  \"username\": \"jdoe\",\n  \"first_name\": \"Jane\",\n  \"last_name\": \"Doe\",\n  \"email\": \"jdoe@domain.com\",\n  \"password\": \"SecurePass123!\",\n  \"ou\": \"OU=Users,DC=domain,DC=com\",\n  \"department\": \"Engineering\",\n  \"title\": \"Software Engineer\"\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{base_url}}/api/users/", "host": ["{{base_url}}"], "path": ["api", "users", ""] } } },
+        { "name": "Get User", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/users/jdoe", "host": ["{{base_url}}"], "path": ["api", "users", "jdoe"] } } },
+        { "name": "Disable User", "request": { "method": "PUT", "url": { "raw": "{{base_url}}/api/users/jdoe/disable", "host": ["{{base_url}}"], "path": ["api", "users", "jdoe", "disable"] } } },
+        { "name": "Enable User", "request": { "method": "PUT", "url": { "raw": "{{base_url}}/api/users/jdoe/enable", "host": ["{{base_url}}"], "path": ["api", "users", "jdoe", "enable"] } } },
+        { "name": "Reset Password", "request": { "method": "PUT", "body": { "mode": "raw", "raw": "{\n  \"new_password\": \"NewPass456!\"\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{base_url}}/api/users/jdoe/reset-password", "host": ["{{base_url}}"], "path": ["api", "users", "jdoe", "reset-password"] } } },
+        { "name": "Move User", "request": { "method": "PUT", "body": { "mode": "raw", "raw": "{\n  \"target_ou\": \"OU=Archive,DC=domain,DC=com\"\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{base_url}}/api/users/jdoe/move", "host": ["{{base_url}}"], "path": ["api", "users", "jdoe", "move"] } } },
+        { "name": "Inactive Users", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/users/inactive/90", "host": ["{{base_url}}"], "path": ["api", "users", "inactive", "90"] } } },
+        { "name": "Bulk Create Users", "request": { "method": "POST", "body": { "mode": "raw", "raw": "[\n  {\n    \"username\": \"user1\",\n    \"first_name\": \"Alice\",\n    \"last_name\": \"Smith\",\n    \"email\": \"alice@domain.com\",\n    \"password\": \"Pass123!\",\n    \"ou\": \"OU=Users,DC=domain,DC=com\"\n  },\n  {\n    \"username\": \"user2\",\n    \"first_name\": \"Bob\",\n    \"last_name\": \"Jones\",\n    \"email\": \"bob@domain.com\",\n    \"password\": \"Pass123!\",\n    \"ou\": \"OU=Users,DC=domain,DC=com\"\n  }\n]", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{base_url}}/api/users/bulk", "host": ["{{base_url}}"], "path": ["api", "users", "bulk"] } } }
+      ]
+    },
+    {
+      "name": "4. Group Management",
+      "item": [
+        { "name": "Create Group", "request": { "method": "POST", "body": { "mode": "raw", "raw": "{\n  \"name\": \"Demo-Team\",\n  \"group_scope\": \"Global\",\n  \"group_type\": \"Security\",\n  \"ou\": \"OU=Groups,DC=domain,DC=com\"\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{base_url}}/api/groups/", "host": ["{{base_url}}"], "path": ["api", "groups", ""] } } },
+        { "name": "Get Group Members", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/groups/Domain-Admins/members", "host": ["{{base_url}}"], "path": ["api", "groups", "Domain-Admins", "members"] } } },
+        { "name": "Add Member", "request": { "method": "POST", "body": { "mode": "raw", "raw": "{\n  \"group_name\": \"Demo-Team\",\n  \"member_dn\": \"CN=Jane Doe,OU=Users,DC=domain,DC=com\"\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{base_url}}/api/groups/add-member", "host": ["{{base_url}}"], "path": ["api", "groups", "add-member"] } } },
+        { "name": "Remove Member", "request": { "method": "POST", "body": { "mode": "raw", "raw": "{\n  \"group_name\": \"Demo-Team\",\n  \"member_dn\": \"CN=Jane Doe,OU=Users,DC=domain,DC=com\"\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{base_url}}/api/groups/remove-member", "host": ["{{base_url}}"], "path": ["api", "groups", "remove-member"] } } },
+        { "name": "User Groups", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/groups/user/jdoe/groups", "host": ["{{base_url}}"], "path": ["api", "groups", "user", "jdoe", "groups"] } } },
+        { "name": "Empty Groups", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/groups/empty", "host": ["{{base_url}}"], "path": ["api", "groups", "empty"] } } }
+      ]
+    },
+    {
+      "name": "5. Health Checks",
+      "item": [
+        { "name": "All Health Checks", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/health/", "host": ["{{base_url}}"], "path": ["api", "health", ""] } } },
+        { "name": "Replication", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/health/replication", "host": ["{{base_url}}"], "path": ["api", "health", "replication"] } } },
+        { "name": "Domain Controllers", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/health/domain-controllers", "host": ["{{base_url}}"], "path": ["api", "health", "domain-controllers"] } } },
+        { "name": "LDAP Connectivity", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/health/ldap", "host": ["{{base_url}}"], "path": ["api", "health", "ldap"] } } },
+        { "name": "FSMO Roles", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/health/fsmo", "host": ["{{base_url}}"], "path": ["api", "health", "fsmo"] } } },
+        { "name": "DNS Records", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/health/dns", "host": ["{{base_url}}"], "path": ["api", "health", "dns"] } } }
+      ]
+    },
+    {
+      "name": "6. Security Audits",
+      "item": [
+        { "name": "All Audits", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/security/", "host": ["{{base_url}}"], "path": ["api", "security", ""] } } },
+        { "name": "Privileged Accounts", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/security/privileged", "host": ["{{base_url}}"], "path": ["api", "security", "privileged"] } } },
+        { "name": "Password Policy", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/security/password-policy", "host": ["{{base_url}}"], "path": ["api", "security", "password-policy"] } } },
+        { "name": "Inactive Accounts", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/security/inactive/90", "host": ["{{base_url}}"], "path": ["api", "security", "inactive", "90"] } } },
+        { "name": "Locked Accounts", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/security/locked", "host": ["{{base_url}}"], "path": ["api", "security", "locked"] } } },
+        { "name": "Security Groups", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/security/groups", "host": ["{{base_url}}"], "path": ["api", "security", "groups"] } } }
+      ]
+    },
+    {
+      "name": "7. System Inventory",
+      "item": [
+        { "name": "List Systems", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/systems/", "host": ["{{base_url}}"], "path": ["api", "systems", ""] } } },
+        { "name": "Register System", "request": { "method": "POST", "body": { "mode": "raw", "raw": "{\n  \"hostname\": \"web-01.domain.com\",\n  \"ip_address\": \"192.168.1.50\",\n  \"os_type\": \"linux\",\n  \"department\": \"Engineering\",\n  \"system_type\": \"server\"\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{base_url}}/api/systems/", "host": ["{{base_url}}"], "path": ["api", "systems", ""] } } },
+        { "name": "System Types", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/systems/types", "host": ["{{base_url}}"], "path": ["api", "systems", "types"] } } },
+        { "name": "Service Names", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/systems/services", "host": ["{{base_url}}"], "path": ["api", "systems", "services"] } } }
+      ]
+    },
+    {
+      "name": "8. Migration",
+      "item": [
+        { "name": "Export User Attributes", "request": { "method": "GET", "url": { "raw": "{{base_url}}/api/migration/export/jdoe", "host": ["{{base_url}}"], "path": ["api", "migration", "export", "jdoe"] } } },
+        { "name": "CSV Import", "request": { "method": "POST", "body": { "mode": "raw", "raw": "{\n  \"csv_file\": \"/path/to/users.csv\"\n}", "options": { "raw": { "language": "json" } } }, "url": { "raw": "{{base_url}}/api/migration/csv", "host": ["{{base_url}}"], "path": ["api", "migration", "csv"] } } }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000", "type": "string" }
+  ]
+}

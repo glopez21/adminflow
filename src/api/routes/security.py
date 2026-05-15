@@ -34,7 +34,7 @@ from fastapi import APIRouter
 import config.settings as settings
 from src.api.models.schemas import HealthCheckRequest, NetworkScanRequest
 from src.security.ad_security import ADSecurityAuditor
-from src.utils.ad_connection import ADConnection
+from src.utils.ad_connection import get_pooled_connection, release_connection
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -42,18 +42,17 @@ router = APIRouter()
 
 def get_security_auditor():
     """
-    Create and connect a security auditor instance.
+    Acquire a pooled AD connection and create a security auditor.
 
     Returns:
         tuple: (ADSecurityAuditor instance, AD connection)
     """
-    conn = ADConnection(
+    conn = get_pooled_connection(
         server=settings.AD_SERVER,
         username=settings.AD_USER,
         password=settings.AD_PASSWORD,
         base_dn=settings.AD_BASE_DN,
     )
-    conn.connect()
     return ADSecurityAuditor(conn), conn
 
 
@@ -74,7 +73,7 @@ async def security_all():
         result = auditor.generate_security_report()
         return result
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.get("/privileged")
@@ -103,7 +102,7 @@ async def get_privileged_accounts():
         result = auditor.find_privileged_accounts()
         return {"count": len(result), "accounts": result}
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.get("/password-policy")
@@ -123,7 +122,7 @@ async def check_password_policy():
         result = auditor.check_password_policy_compliance()
         return result
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.get("/inactive/{days}")
@@ -149,7 +148,7 @@ async def get_inactive_accounts(days: int = 90):
         result = auditor.find_inactive_accounts(days)
         return {"count": len(result), "accounts": result}
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.get("/locked")
@@ -168,7 +167,7 @@ async def get_locked_accounts():
         result = auditor.find_locked_accounts()
         return {"count": len(result), "accounts": result}
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.get("/groups")
@@ -188,7 +187,7 @@ async def audit_security_groups():
         result = auditor.audit_security_groups()
         return result
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.post("/network-scan")
@@ -213,9 +212,9 @@ async def network_scan(request: NetworkScanRequest):
             "ports": [22, 80, 443, 3389]
         }
     """
-    from src.api.routes import systems as sys_module
+    from src.utils.network import scan_network as network_scan
 
-    result = sys_module.scan_network(
+    result = network_scan(
         network_range=request.network_range,
         scan_types=request.scan_types,
         ports=request.ports,
@@ -225,30 +224,9 @@ async def network_scan(request: NetworkScanRequest):
 
 @router.post("/health-check")
 async def health_check(request: HealthCheckRequest):
-    """
-    Perform health check on a specific target.
+    from src.utils.network import check_target as target_check
 
-    Tests connectivity and availability of a specific host using
-    various check types (ping, port, service, url).
-
-    Args:
-        request: HealthCheckRequest with check parameters
-
-    Returns:
-        dict: Health check results
-
-    Example:
-        POST /api/security/health-check
-        {
-            "target": "dc01.domain.com",
-            "check_type": "port",
-            "port": 389,
-            "timeout": 10
-        }
-    """
-    from src.api.routes import systems as sys_module
-
-    result = sys_module.check_target(
+    result = target_check(
         target=request.target,
         check_type=request.check_type,
         port=request.port,

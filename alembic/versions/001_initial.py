@@ -1,20 +1,18 @@
 """Initial database schema.
 
 Revision ID: 001
-Revises: 
+Revises:
 Create Date: 2026-04-23
 
 """
-from typing import Union
-
 import sqlalchemy as sa
 
 from alembic import op
 
 revision: str = "001"
-down_revision: Union[str, None] = None
-branch: Union[str, None] = None
-depends_on: Union[str, None] = None
+down_revision: str | None = None
+branch: str | None = None
+depends_on: str | None = None
 
 
 def upgrade() -> None:

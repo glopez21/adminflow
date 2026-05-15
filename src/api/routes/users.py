@@ -29,14 +29,13 @@ Example:
 """
 
 import logging
-from typing import List
 
 from fastapi import APIRouter, HTTPException
 
 import config.settings as settings
 from src.api.models.schemas import UserCreate
 from src.user_management.ad_user_manager import ADUserManager
-from src.utils.ad_connection import ADConnection
+from src.utils.ad_connection import get_pooled_connection, release_connection
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -44,18 +43,17 @@ router = APIRouter()
 
 def get_user_manager():
     """
-    Create and connect a user manager instance.
+    Acquire a pooled AD connection and create a user manager.
 
     Returns:
         tuple: (ADUserManager instance, AD connection)
     """
-    conn = ADConnection(
+    conn = get_pooled_connection(
         server=settings.AD_SERVER,
         username=settings.AD_USER,
         password=settings.AD_PASSWORD,
         base_dn=settings.AD_BASE_DN,
     )
-    conn.connect()
     return ADUserManager(conn), conn
 
 
@@ -91,7 +89,7 @@ async def create_user(user: UserCreate):
         )
         return result
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.get("/{username}", response_model=dict)
@@ -119,7 +117,7 @@ async def get_user(username: str):
             raise HTTPException(status_code=404, detail=result.get("message"))
         return result
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.put("/{username}/disable")
@@ -147,7 +145,7 @@ async def disable_user(username: str):
             raise HTTPException(status_code=400, detail=result.get("message"))
         return result
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.put("/{username}/enable")
@@ -174,7 +172,7 @@ async def enable_user(username: str):
             raise HTTPException(status_code=400, detail=result.get("message"))
         return result
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.put("/{username}/reset-password")
@@ -203,7 +201,7 @@ async def reset_password(username: str, new_password: str):
             raise HTTPException(status_code=400, detail=result.get("message"))
         return result
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.put("/{username}/move")
@@ -235,7 +233,7 @@ async def move_user(username: str, new_ou: str):
             raise HTTPException(status_code=400, detail=result.get("message"))
         return result
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.get("/inactive/{days}")
@@ -270,11 +268,11 @@ async def get_inactive_users(days: int = 90):
         result = manager.find_inactive_users(days)
         return {"count": len(result), "users": result}
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.post("/bulk")
-async def bulk_create_users(users: List[UserCreate]):
+async def bulk_create_users(users: list[UserCreate]):
     """
     Create multiple users in a single operation.
 
@@ -301,4 +299,4 @@ async def bulk_create_users(users: List[UserCreate]):
         result = manager.bulk_create_users(user_list)
         return result
     finally:
-        conn.disconnect()
+        release_connection(conn)

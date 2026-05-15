@@ -6,9 +6,11 @@
 
 A comprehensive Python-based automation platform for Microsoft Active Directory management with REST API, web dashboard, and remote system connectivity.
 
-[![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![Flask](https://img.shields.io/badge/Flask-000000?style=flat&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![Ruff](https://img.shields.io/badge/Ruff-passing-22BB33?style=flat&logo=python&logoColor=white)](https://github.com/astral-sh/ruff)
+[![mypy](https://img.shields.io/badge/mypy-passing-22BB33?style=flat&logo=python&logoColor=white)](http://mypy-lang.org/)
+[![Tests](https://img.shields.io/badge/Tests-29%20passing-22BB33?style=flat&logo=pytest&logoColor=white)](https://docs.pytest.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/Status-Active-success.svg)](https://github.com/yourusername/adminflow)
 
@@ -25,6 +27,7 @@ A comprehensive Python-based automation platform for Microsoft Active Directory 
 - [Quick Start](#quick-start)
 - [Configuration](#configuration)
 - [API Reference](#api-reference)
+- [Postman Collection](#postman-collection)
 - [Web Dashboard](#web-dashboard)
 - [CLI Usage](#cli-usage)
 - [Azure AD Integration](#azure-ad-integration)
@@ -83,10 +86,69 @@ A comprehensive Python-based automation platform for Microsoft Active Directory 
 
 ## Architecture
 
+```mermaid
+graph TB
+    Client["Client<br/>(curl / Postman / App)"]
+    
+    subgraph API["FastAPI Layer"]
+        Auth["Auth Middleware<br/>(JWT + API Key)"]
+        Routes["Routes<br/>(users, groups, health,<br/>security, migration, systems)"]
+    end
+    
+    subgraph Core["Core Modules"]
+        UM["User Management<br/>(ad_user_manager, group_management)"]
+        HC["Health Checks<br/>(ad_health)"]
+        SA["Security Audit<br/>(ad_security)"]
+        MIG["Migration<br/>(ad_migration)"]
+        NS["Network Scanner<br/>(network)"]
+        RC["Remote Connections<br/>(SSH/WinRM/RDP/VNC/SMB)"]
+        AD["Azure AD Sync<br/>(azure_ad)"]
+    end
+    
+    subgraph Infra["Infrastructure"]
+        SCH["Scheduler<br/>(APScheduler)"]
+        CEL["Celery Worker<br/>(distributed tasks)"]
+        REDIS["Redis<br/>(cache + broker)"]
+        DB["SQLite<br/>(system inventory)"]
+    end
+    
+    subgraph External["External Systems"]
+        ADSRV["Active Directory<br/>(pyad / LDAP)"]
+        AZURE["Azure AD /<br/>Microsoft Graph"]
+        REMOTE["Remote Servers"]
+    end
+
+    Client -->|HTTP| Auth
+    Auth --> Routes
+    Routes --> UM
+    Routes --> HC
+    Routes --> SA
+    Routes --> MIG
+    Routes --> NS
+    Routes --> RC
+    Routes --> AD
+    UM --> ADSRV
+    HC --> ADSRV
+    SA --> ADSRV
+    MIG --> ADSRV
+    NS --> REMOTE
+    RC --> REMOTE
+    AD --> AZURE
+    SCH --> UM
+    SCH --> HC
+    SCH --> SA
+    CEL -->|Redis| REDIS
+    REDIS --> API
+    API --> DB
+```
+
+### Project Structure
+
 ```
 adminflow/
 ├── src/
 │   ├── main.py                     # CLI entry point
+│   ├── demo.py                     # Live interview demo
 │   ├── api/                        # FastAPI REST API
 │   │   ├── main.py                 # Application factory
 │   │   ├── middleware/
@@ -94,6 +156,7 @@ adminflow/
 │   │   ├── models/
 │   │   │   └── schemas.py          # Pydantic request/response models
 │   │   └── routes/
+│   │       ├── auth.py             # JWT login endpoint
 │   │       ├── users.py            # User management endpoints
 │   │       ├── groups.py           # Group management endpoints
 │   │       ├── health.py           # Health check endpoints
@@ -106,24 +169,32 @@ adminflow/
 │   ├── health_checks/              # AD monitoring modules
 │   │   └── ad_health.py            # Health check implementations
 │   ├── security/                   # Security audit modules
+│   │   └── ad_security.py          # Security auditor
 │   ├── migration/                  # User migration modules
 │   │   └── ad_migration.py         # CSV import, batch operations
+│   ├── tasks/                      # Celery task definitions
+│   │   └── celery.py               # Async task definitions
 │   └── utils/                      # Shared utilities
-│       ├── ad_connection.py        # AD connection handler
-│       ├── logger.py                # Logging configuration
-│       ├── network.py              # Network scanning utilities
-│       ├── remote_connections.py   # SSH/RDP/VNC handlers
-│       ├── scheduler.py            # Job scheduling
-│       └── azure_ad.py            # Azure AD integration
+│       ├── ad_connection.py        # AD connection factory
+│       ├── log_config.py           # Structured logging (structlog)
+│       ├── network.py              # Network scanning (ping/port/services)
+│       ├── remote_connections.py   # SSH/RDP/VNC/WinRM/SMB handlers
+│       ├── scheduler.py            # APScheduler job definitions
+│       ├── cache.py                # Redis caching layer
+│       └── azure_ad.py            # Azure AD / Graph API integration
 ├── web/
 │   ├── app.py                      # Flask web dashboard
 │   └── templates/                  # HTML templates
 ├── config/
-│   └── settings.py                 # Configuration management
-├── tests/                          # Test suite
+│   └── settings.py                 # Pydantic-settings configuration
+├── tests/                          # Test suite (pytest)
+├── postman/                        # Postman collection
 ├── reports/                        # Generated reports
 ├── logs/                          # Application logs
-└── pyproject.toml                 # Project configuration
+├── docker-compose.yml             # Multi-service orchestration
+├── Dockerfile                      # Production build
+├── Dockerfile.dev                  # Development build (hot-reload)
+└── pyproject.toml                 # Project config (ruff, mypy, pytest)
 ```
 
 ---
@@ -132,7 +203,7 @@ adminflow/
 
 | Component | Technology |
 |-----------|------------|
-| **Language** | Python 3.9+ |
+| **Language** | Python 3.10+ |
 | **API Framework** | FastAPI |
 | **Web Dashboard** | Flask |
 | **Database** | SQLite (system inventory) |
@@ -140,7 +211,11 @@ adminflow/
 | **Remote Connections** | paramiko, socket |
 | **Authentication** | JWT, API Keys |
 | **Azure Integration** | Microsoft Graph API (msal) |
-| **Task Scheduling** | APScheduler |
+| **Task Scheduling** | APScheduler, Celery |
+| **Message Broker** | Redis |
+| **Logging** | structlog |
+| **Validation** | Pydantic v2 |
+| **Config** | pydantic-settings |
 
 ---
 
@@ -148,7 +223,7 @@ adminflow/
 
 ### Prerequisites
 
-- Python 3.9 or higher
+- Python 3.10 or higher
 - uv package manager (recommended)
 
 ### Installation
@@ -164,6 +239,24 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 # Create virtual environment and install dependencies
 uv sync
 ```
+
+### Docker Quick Start
+
+```bash
+# Start API server + Redis
+docker compose up -d
+
+# Start with Celery worker (full profile)
+docker compose --profile full up -d
+
+# Run the interactive demo (dev profile)
+docker compose --profile dev up
+
+# Stop all services
+docker compose down
+```
+
+The API will be available at `http://localhost:8000` and interactive docs at `http://localhost:8000/docs`. No Active Directory environment is required — all AD-dependent endpoints degrade gracefully with informative messages.
 
 ### Configuration
 
@@ -210,14 +303,11 @@ uv run python -m src.api.main
 # Interactive API docs at http://localhost:8000/docs
 ```
 
-#### Option 2: Web Dashboard
+#### Option 2: Interactive Demo
 
 ```bash
-# Start Flask web dashboard
-uv run python -m web.app
-
-# Dashboard runs at http://localhost:5000
-# Default credentials: admin / admin123
+# Starts server and runs requests against all endpoints
+uv run demo
 ```
 
 #### Option 3: CLI
@@ -285,10 +375,10 @@ curl "http://localhost:8000/api/users?api_key=ad-admin-key-001"
 #### Option 2: JWT Token
 
 ```bash
-# Get token
+# Get token (form-data, not JSON)
 curl -X POST "http://localhost:8000/api/auth/token" \
-  -H "Content-Type: application/json" \
-  -d '{"username":"admin","password":"admin123"}'
+  -d "username=admin" \
+  -d "password=admin123"
 
 # Use token
 curl -H "Authorization: Bearer <token>" http://localhost:8000/api/users
@@ -374,31 +464,42 @@ For complete API documentation, visit `/docs` when the server is running.
 
 ---
 
+## Postman Collection
+
+A complete Postman collection is included at `postman/AdminFlow.postman_collection.json` with pre-configured API key authentication.
+
+### Import
+
+1. Open Postman → **Import** → **Upload Files**
+2. Select `postman/AdminFlow.postman_collection.json`
+3. All endpoints are pre-configured with `X-API-Key: ad-admin-key-001`
+
+### Collection Structure
+
+| Folder | Requests | Description |
+|--------|----------|-------------|
+| **Auth** | 1 | JWT token acquisition |
+| **Users** | 8 | Full user CRUD lifecycle |
+| **Groups** | 5 | Group management and membership |
+| **Health** | 5 | AD health check suite |
+| **Security** | 6 | Security audits and network scanning |
+| **Systems** | 6 | System inventory and remote testing |
+| **Migration** | 3 | CSV import and batch operations |
+| **Jobs** | 3 | Scheduler management |
+
+The collection uses collection-level variables (`base_url`, `api_key`) for easy environment switching.
+
+---
+
 ## Web Dashboard
 
-The web dashboard provides a visual interface for all AdminFlow operations.
+A Flask-based web dashboard is available at `http://localhost:5000` (default credentials: `admin` / `admin123`).
 
-### Features
-
-- **Dashboard**: Overview with statistics (inactive, privileged, locked accounts)
-- **Users**: Create and manage AD users
-- **Groups**: View and manage group membership
-- **Health**: Run AD health checks
-- **Security**: Run security audits
-- **Remote Connect**: Test remote connections and port scanning
-- **Systems**: View system inventory
-- **Jobs**: View scheduled automation jobs
-- **Settings**: Configure system settings
-
-### Access
-
-```
-URL: http://localhost:5000
-Username: admin
-Password: admin123
+```bash
+uv run python -m web.app
 ```
 
-> **Important**: Change the default credentials in production environments.
+> **Note**: Most functionality is accessible via the REST API at `http://localhost:8000/docs`.
 
 ---
 

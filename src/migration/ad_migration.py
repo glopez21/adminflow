@@ -35,8 +35,7 @@ Requirements:
 
 import csv
 import logging
-from datetime import datetime
-from typing import Dict, List
+from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
@@ -69,10 +68,10 @@ class ADMigrationManager:
             import pyad
 
             self.pyad = pyad
-        except ImportError:
+        except Exception:
             logger.warning("pyad not available - migration functionality limited")
 
-    def migrate_users_from_csv(self, csv_file: str) -> Dict:
+    def migrate_users_from_csv(self, csv_file: str) -> dict:
         """
         Bulk migrate or create users from CSV file.
 
@@ -118,14 +117,14 @@ class ADMigrationManager:
             return {
                 "migrated": migrated,
                 "failed": failed,
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         except Exception as e:
             logger.error(f"CSV migration failed: {e}")
             return {"status": "error", "message": str(e)}
 
-    def _migrate_single_user(self, user_data: Dict) -> Dict:
+    def _migrate_single_user(self, user_data: dict) -> dict:
         """
         Migrate a single user with all attributes.
 
@@ -163,15 +162,16 @@ class ADMigrationManager:
                 ou=user_data.get("ou", self.conn.base_dn),
             )
 
-            if user_data.get("groups"):
-                groups = user_data.get("groups").split(";")
+            groups_str = user_data.get("groups")
+            if groups_str:
+                groups = str(groups_str).split(";")
                 for group in groups:
                     try:
                         from pyad import pyadgroup
 
                         g = pyadgroup.from_cn(group.strip())
                         g.add_members([str(new_user.dn)])
-                    except:
+                    except Exception:
                         logger.warning(f"Could not add user to group: {group}")
 
             return {"status": "success", "user": user_data.get("username")}
@@ -179,7 +179,7 @@ class ADMigrationManager:
         except Exception as e:
             return {"status": "error", "message": str(e)}
 
-    def create_group_mapping(self, mappings: Dict[str, str]) -> None:
+    def create_group_mapping(self, mappings: dict[str, str]) -> None:
         """
         Store group mappings for migration.
 
@@ -199,7 +199,7 @@ class ADMigrationManager:
         self.group_mappings = mappings
         logger.info(f"Created {len(mappings)} group mappings")
 
-    def map_source_groups(self, source_groups: List[str], target_ou: str) -> Dict:
+    def map_source_groups(self, source_groups: list[str], target_ou: str) -> dict:
         """
         Map source domain groups to target domain.
 
@@ -213,7 +213,7 @@ class ADMigrationManager:
         Returns:
             dict: Mapping results with success and failure counts
         """
-        results = {"mapped": [], "failed": []}
+        results: dict[str, list] = {"mapped": [], "failed": []}
 
         for source_group in source_groups:
             target_group = self.group_mappings.get(source_group, source_group)
@@ -226,7 +226,7 @@ class ADMigrationManager:
                     results["mapped"].append(
                         {"source": source_group, "target": target_group}
                     )
-                except:
+                except Exception:
                     pyadgroup.create(
                         name=target_group,
                         group_scope="Global",
@@ -246,7 +246,7 @@ class ADMigrationManager:
 
         return results
 
-    def batch_move_users(self, users: List[str], target_ou: str) -> Dict:
+    def batch_move_users(self, users: list[str], target_ou: str) -> dict:
         """
         Move multiple users to a new Organizational Unit.
 
@@ -260,7 +260,7 @@ class ADMigrationManager:
         Returns:
             dict: Move results with success and failure counts
         """
-        results = {"success": [], "failed": []}
+        results: dict[str, list] = {"success": [], "failed": []}
 
         for username in users:
             try:
@@ -278,7 +278,7 @@ class ADMigrationManager:
         )
         return results
 
-    def preserve_user_attributes(self, username: str) -> Dict:
+    def preserve_user_attributes(self, username: str) -> dict:
         """
         Extract all user attributes for preservation.
 
@@ -329,7 +329,7 @@ class ADMigrationManager:
             logger.error(f"Failed to preserve attributes for {username}: {e}")
             return {"status": "error", "message": str(e)}
 
-    def export_migration_report(self, results: Dict, output_file: str) -> None:
+    def export_migration_report(self, results: dict, output_file: str) -> None:
         """
         Export migration results to CSV.
 

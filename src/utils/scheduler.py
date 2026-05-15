@@ -44,8 +44,7 @@ Requirements:
 import json
 import logging
 import os
-from datetime import datetime
-from typing import Dict, List
+from datetime import datetime, timezone
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -74,7 +73,7 @@ class AutomationJob:
             def __init__(self):
                 super().__init__("my_job", "My custom job")
 
-            def run(self) -> Dict:
+    def run(self) -> dict:
                 # Do work here
                 return {"status": "success"}
     """
@@ -89,23 +88,14 @@ class AutomationJob:
         """
         self.name = name
         self.description = description
-        self.last_run = None
-        self.last_result = None
+        self.last_run: datetime | None = None
+        self.last_result: dict | None = None
         self.enabled = True
 
-    def run(self) -> Dict:
-        """
-        Execute the job - must be overridden in subclass.
-
-        Returns:
-            dict: Job execution result
-
-        Raises:
-            NotImplementedError: If not overridden in subclass
-        """
+    def run(self) -> dict:
         raise NotImplementedError
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """
         Convert job to dictionary for status reporting.
 
@@ -149,29 +139,20 @@ class HealthCheckJob(AutomationJob):
         super().__init__("ad_health_check", "Daily AD health check")
         self.ad_conn = ad_connection
 
-    def run(self) -> Dict:
-        """
-        Execute AD health check and save report.
-
-        Runs all health checks via ADHealthChecker and saves
-        the results to a timestamped JSON file in the reports directory.
-
-        Returns:
-            dict: Health check results dictionary
-        """
+    def run(self) -> dict:
         from src.health_checks.ad_health import ADHealthChecker
 
         checker = ADHealthChecker(self.ad_conn)
         result = checker.generate_health_report()
 
-        self.last_run = datetime.now()
+        self.last_run = datetime.now(timezone.utc)
         self.last_result = result
 
         self._save_report(result)
 
         return result
 
-    def _save_report(self, result: Dict):
+    def _save_report(self, result: dict):
         """
         Save health check report to JSON file.
 
@@ -184,7 +165,7 @@ class HealthCheckJob(AutomationJob):
         reports_dir = "reports"
         os.makedirs(reports_dir, exist_ok=True)
 
-        filename = f"health_report_{datetime.now().strftime('%Y%m%d')}.json"
+        filename = f"health_report_{datetime.now(timezone.utc).strftime('%Y%m%d')}.json"
         with open(f"{reports_dir}/{filename}", "w") as f:
             json.dump(result, f, indent=2)
 
@@ -218,28 +199,19 @@ class InactiveAccountsJob(AutomationJob):
         self.ad_conn = ad_connection
         self.threshold_days = threshold_days
 
-    def run(self) -> Dict:
-        """
-        Execute inactive accounts search and save report.
-
-        Queries AD for accounts with lastLogonTimestamp older than
-        the threshold and saves results to a JSON file.
-
-        Returns:
-            dict: Number of inactive accounts and account details
-        """
+    def run(self) -> dict:
         from src.security.ad_security import ADSecurityAuditor
 
         auditor = ADSecurityAuditor(self.ad_conn)
         result = auditor.find_inactive_accounts(self.threshold_days)
 
-        self.last_run = datetime.now()
+        self.last_run = datetime.now(timezone.utc)
 
         self._save_report(result)
 
         return {"found": len(result), "accounts": result}
 
-    def _save_report(self, result: List[Dict]):
+    def _save_report(self, result: list[dict]):
         """
         Save inactive accounts report to JSON file.
 
@@ -249,7 +221,7 @@ class InactiveAccountsJob(AutomationJob):
         reports_dir = "reports"
         os.makedirs(reports_dir, exist_ok=True)
 
-        filename = f"inactive_accounts_{datetime.now().strftime('%Y%m%d')}.json"
+        filename = f"inactive_accounts_{datetime.now(timezone.utc).strftime('%Y%m%d')}.json"
         with open(f"{reports_dir}/{filename}", "w") as f:
             json.dump(result, f, indent=2)
 
@@ -276,28 +248,19 @@ class SecurityAuditJob(AutomationJob):
         super().__init__("security_audit", "Weekly security audit")
         self.ad_conn = ad_connection
 
-    def run(self) -> Dict:
-        """
-        Execute security audit and save report.
-
-        Runs all security checks via ADSecurityAuditor and saves
-        the results to a timestamped JSON file.
-
-        Returns:
-            dict: Security audit results dictionary
-        """
+    def run(self) -> dict:
         from src.security.ad_security import ADSecurityAuditor
 
         auditor = ADSecurityAuditor(self.ad_conn)
         result = auditor.generate_security_report()
 
-        self.last_run = datetime.now()
+        self.last_run = datetime.now(timezone.utc)
 
         self._save_report(result)
 
         return result
 
-    def _save_report(self, result: Dict):
+    def _save_report(self, result: dict):
         """
         Save security audit report to JSON file.
 
@@ -307,7 +270,7 @@ class SecurityAuditJob(AutomationJob):
         reports_dir = "reports"
         os.makedirs(reports_dir, exist_ok=True)
 
-        filename = f"security_audit_{datetime.now().strftime('%Y%m%d')}.json"
+        filename = f"security_audit_{datetime.now(timezone.utc).strftime('%Y%m%d')}.json"
         with open(f"{reports_dir}/{filename}", "w") as f:
             json.dump(result, f, indent=2)
 
@@ -333,7 +296,7 @@ class BackupConfigJob(AutomationJob):
         super().__init__("config_backup", "Backup configuration files")
         self.config_dir = config_dir
 
-    def run(self) -> Dict:
+    def run(self) -> dict:
         """
         Execute configuration backup.
 
@@ -348,14 +311,14 @@ class BackupConfigJob(AutomationJob):
         backup_dir = "reports/backups"
         os.makedirs(backup_dir, exist_ok=True)
 
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         backup_file = f"{backup_dir}/config_backup_{timestamp}.tar.gz"
 
         try:
             with tarfile.open(backup_file, "w:gz") as tar:
                 tar.add(self.config_dir, arcname="config")
 
-            self.last_run = datetime.now()
+            self.last_run = datetime.now(timezone.utc)
 
             return {"status": "success", "backup_file": backup_file}
         except Exception as e:
@@ -395,7 +358,7 @@ class SchedulerManager:
             ad_connection: Optional ADConnection for AD-related jobs
         """
         self.scheduler = BackgroundScheduler()
-        self.jobs: Dict[str, AutomationJob] = {}
+        self.jobs: dict[str, AutomationJob] = {}
         self.ad_conn = ad_connection
 
     def add_job(self, job: AutomationJob, trigger_type: str = "cron", **trigger_args):
@@ -470,7 +433,7 @@ class SchedulerManager:
             self.scheduler.shutdown()
             logger.info("Scheduler stopped")
 
-    def get_jobs(self) -> List[Dict]:
+    def get_jobs(self) -> list[dict]:
         """
         Get status of all registered jobs.
 
@@ -479,7 +442,7 @@ class SchedulerManager:
         """
         return [job.to_dict() for job in self.jobs.values()]
 
-    def run_job_now(self, job_name: str) -> Dict:
+    def run_job_now(self, job_name: str) -> dict:
         """
         Manually trigger a job to run immediately.
 
@@ -502,7 +465,7 @@ class SchedulerManager:
             logger.error(f"Job {job_name} failed: {e}")
             return {"status": "error", "message": str(e)}
 
-    def get_next_runs(self) -> Dict:
+    def get_next_runs(self) -> dict:
         """
         Get next scheduled run times for all jobs.
 

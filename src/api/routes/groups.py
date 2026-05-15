@@ -24,7 +24,7 @@ Example:
          -d '{"name": "IT-Administrators", "group_scope": "Global", \
              "group_type": "Security"}' \
          http://localhost:8000/api/groups/
-    
+
     # Get group members
     curl -H "Authorization: Bearer <token>" \
          http://localhost:8000/api/groups/Domain-Admins/members
@@ -32,12 +32,12 @@ Example:
 
 import logging
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Body
 
 import config.settings as settings
 from src.api.models.schemas import GroupCreate, GroupMemberAdd
 from src.user_management.group_management import ADGroupManager
-from src.utils.ad_connection import ADConnection
+from src.utils.ad_connection import get_pooled_connection, release_connection
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -45,18 +45,17 @@ router = APIRouter()
 
 def get_group_manager():
     """
-    Create and connect a group manager instance.
+    Acquire a pooled AD connection and create a group manager.
 
     Returns:
         tuple: (ADGroupManager instance, AD connection)
     """
-    conn = ADConnection(
+    conn = get_pooled_connection(
         server=settings.AD_SERVER,
         username=settings.AD_USER,
         password=settings.AD_PASSWORD,
         base_dn=settings.AD_BASE_DN,
     )
-    conn.connect()
     return ADGroupManager(conn), conn
 
 
@@ -88,7 +87,7 @@ async def create_group(group: GroupCreate):
         )
         return result
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.get("/{group_name}/members")
@@ -117,7 +116,7 @@ async def get_group_members(group_name: str):
         members = manager.get_group_members(group_name)
         return {"group": group_name, "members": members, "count": len(members)}
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.post("/add-member")
@@ -146,7 +145,7 @@ async def add_group_member(member: GroupMemberAdd):
         result = manager.add_member(member.group_name, member.member_dn)
         return result
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.post("/remove-member")
@@ -175,7 +174,7 @@ async def remove_group_member(member: GroupMemberAdd):
         result = manager.remove_member(member.group_name, member.member_dn)
         return result
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.get("/user/{username}/groups")
@@ -204,7 +203,7 @@ async def get_user_groups(username: str):
         groups = manager.get_user_groups(username)
         return {"username": username, "groups": groups, "count": len(groups)}
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.get("/empty")
@@ -230,11 +229,11 @@ async def get_empty_groups():
         groups = manager.find_empty_groups()
         return {"count": len(groups), "groups": groups}
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.post("/bulk-add/{group_name}")
-async def bulk_add_members(group_name: str, members: list):
+async def bulk_add_members(group_name: str, members: list = Body()):
     """
     Add multiple members to a group in a single operation.
 
@@ -264,4 +263,4 @@ async def bulk_add_members(group_name: str, members: list):
         result = manager.bulk_add_members(group_name, members)
         return result
     finally:
-        conn.disconnect()
+        release_connection(conn)

@@ -21,13 +21,7 @@ Example:
 """
 
 import argparse
-import sys
-from pathlib import Path
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-# Import core modules for AD operations
 import config.settings as settings
 from src.health_checks.ad_health import ADHealthChecker
 from src.migration.ad_migration import ADMigrationManager
@@ -244,9 +238,9 @@ def main():
             elif args.action == "inactive":
                 # Find users who haven't logged in for specified days
                 # Useful for identifying stale accounts for cleanup
-                result = user_mgr.find_inactive_users(args.days)
-                print(f"Found {len(result)} inactive users")
-                for u in result:
+                inactive = user_mgr.find_inactive_users(args.days)
+                print(f"Found {len(inactive)} inactive users")
+                for u in inactive:
                     print(f"  - {u.get('username')}")
 
         # -----------------------------------------------------------------
@@ -262,8 +256,8 @@ def main():
 
             elif args.action == "members":
                 # List all members of a specific group
-                result = group_mgr.get_group_members(args.name)
-                print(f"Members of {args.name}: {result}")
+                members = group_mgr.get_group_members(args.name)
+                print(f"Members of {args.name}: {members}")
 
             elif args.action == "add-member":
                 # Add an existing user or group as a member
@@ -289,8 +283,8 @@ def main():
 
             elif args.check == "dc":
                 # List all domain controllers in the environment
-                result = health_checker.check_domain_controllers()
-                print(result)
+                dcs = health_checker.check_domain_controllers()
+                print(dcs)
 
             elif args.check == "ldap":
                 # Test LDAP connectivity to domain controllers
@@ -318,9 +312,9 @@ def main():
             elif args.audit == "privileged":
                 # Find accounts with privileged group memberships
                 # Important for access review and compliance
-                result = auditor.find_privileged_accounts()
-                print(f"Found {len(result)} privileged accounts")
-                for u in result:
+                privileged = auditor.find_privileged_accounts()
+                print(f"Found {len(privileged)} privileged accounts")
+                for u in privileged:
                     print(f"  - {u.get('username')} ({u.get('group')})")
 
             elif args.audit == "password":
@@ -331,14 +325,14 @@ def main():
 
             elif args.audit == "inactive":
                 # Find accounts inactive beyond threshold
-                result = auditor.find_inactive_accounts(90)
-                print(f"Found {len(result)} inactive accounts")
+                inactive = auditor.find_inactive_accounts(90)
+                print(f"Found {len(inactive)} inactive accounts")
 
             elif args.audit == "locked":
                 # Find accounts that are currently locked out
                 # May indicate brute force attempts
-                result = auditor.find_locked_accounts()
-                print(f"Found {len(result)} locked accounts")
+                locked = auditor.find_locked_accounts()
+                print(f"Found {len(locked)} locked accounts")
 
         # -----------------------------------------------------------------
         # MIGRATION HANDLER

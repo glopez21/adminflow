@@ -7,21 +7,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libldap2-dev \
     libsasl2-dev \
     libssl-dev \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml uv.lock ./
-COPY .venv .venv
+RUN pip install uv && uv sync --frozen --no-install-self --no-dev
 
-ENV PATH="/app/.venv/bin:$PATH" \
-    PYTHONPATH="/app" \
+ENV PYTHONPATH="/app" \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
+COPY . .
+
 EXPOSE 8000 5000
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s -- retries=3 \
-    CMD curl -f http://localhost:8000/health/ || exit 1
-
-USER 1000:1000
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8000/ || exit 1
 
 CMD ["python", "-m", "src.api.main"]

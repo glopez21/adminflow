@@ -36,8 +36,7 @@ Requirements:
 
 import logging
 import subprocess
-from datetime import datetime
-from typing import Dict, List
+from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +62,7 @@ class ADHealthChecker:
         """
         self.conn = ad_connection
 
-    def check_domain_controllers(self) -> List[Dict]:
+    def check_domain_controllers(self) -> list[dict]:
         """
         Get list of domain controllers and their status.
 
@@ -101,7 +100,7 @@ class ADHealthChecker:
 
         return results
 
-    def check_replication(self) -> Dict:
+    def check_replication(self) -> dict:
         """
         Check AD replication status.
 
@@ -130,13 +129,13 @@ class ADHealthChecker:
                 return {
                     "status": "healthy",
                     "output": result.stdout,
-                    "timestamp": datetime.now().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                 }
             else:
                 return {
                     "status": "error",
                     "error": result.stderr,
-                    "timestamp": datetime.now().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                 }
 
         except Exception as e:
@@ -144,10 +143,10 @@ class ADHealthChecker:
             return {
                 "status": "error",
                 "error": str(e),
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
-    def check_ldap_connectivity(self, server: str = None) -> Dict:
+    def check_ldap_connectivity(self, server: str | None = None) -> dict:
         """
         Test LDAP connectivity to domain controllers.
 
@@ -185,14 +184,14 @@ class ADHealthChecker:
                     "server": target,
                     "port": port,
                     "status": "accessible",
-                    "timestamp": datetime.now().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                 }
             else:
                 return {
                     "server": target,
                     "port": port,
                     "status": "unreachable",
-                    "timestamp": datetime.now().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                 }
 
         except Exception as e:
@@ -201,10 +200,10 @@ class ADHealthChecker:
                 "server": target,
                 "status": "error",
                 "error": str(e),
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
-    def check_fsmo_roles(self) -> Dict:
+    def check_fsmo_roles(self) -> dict:
         """
         Check FSMO (Flexible Single Master Operations) role holders.
 
@@ -262,7 +261,7 @@ class ADHealthChecker:
 
         return results
 
-    def check_dns_records(self) -> Dict:
+    def check_dns_records(self) -> dict:
         """
         Verify critical DNS records for Active Directory.
 
@@ -299,9 +298,7 @@ class ADHealthChecker:
                         record + "._tcp." + self.conn.base_dn, None
                     )
                     results[record]["status"] = "found"
-                    results[record]["servers"] = list(
-                        set([r[4][0] for r in srv_records])
-                    )
+                    results[record]["servers"] = sorted({str(r[4][0]) for r in srv_records})
                 except socket.gaierror:
                     results[record]["status"] = "not found"
 
@@ -310,7 +307,7 @@ class ADHealthChecker:
 
         return results
 
-    def generate_health_report(self) -> Dict:
+    def generate_health_report(self) -> dict:
         """
         Generate comprehensive AD health report.
 
@@ -340,7 +337,7 @@ class ADHealthChecker:
             - "warning": Some checks failed or returned unexpected results
         """
         report = {
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "domain": self.conn.base_dn,
             "checks": {},
         }

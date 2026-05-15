@@ -43,8 +43,7 @@ Requirements:
 
 import logging
 import os
-from datetime import datetime
-from typing import Dict, List, Optional
+from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
@@ -90,10 +89,10 @@ class ADUserManager:
         email: str,
         password: str,
         ou: str,
-        department: Optional[str] = None,
-        title: Optional[str] = None,
+        department: str | None = None,
+        title: str | None = None,
         enabled: bool = True,
-    ) -> Dict:
+    ) -> dict:
         """
         Create a new AD user account.
 
@@ -161,7 +160,7 @@ class ADUserManager:
             logger.error(f"Failed to create user {username}: {e}")
             return {"status": "error", "message": str(e)}
 
-    def disable_user(self, username: str) -> Dict:
+    def disable_user(self, username: str) -> dict:
         """
         Disable an AD user account.
 
@@ -190,7 +189,7 @@ class ADUserManager:
             logger.error(f"Failed to disable user {username}: {e}")
             return {"status": "error", "message": str(e)}
 
-    def enable_user(self, username: str) -> Dict:
+    def enable_user(self, username: str) -> dict:
         """
         Enable an AD user account.
 
@@ -219,7 +218,7 @@ class ADUserManager:
             logger.error(f"Failed to enable user {username}: {e}")
             return {"status": "error", "message": str(e)}
 
-    def reset_password(self, username: str, new_password: str) -> Dict:
+    def reset_password(self, username: str, new_password: str) -> dict:
         """
         Reset a user's password.
 
@@ -249,7 +248,7 @@ class ADUserManager:
             logger.error(f"Failed to reset password for {username}: {e}")
             return {"status": "error", "message": str(e)}
 
-    def move_user(self, username: str, new_ou: str) -> Dict:
+    def move_user(self, username: str, new_ou: str) -> dict:
         """
         Move user to a different Organizational Unit.
 
@@ -282,7 +281,7 @@ class ADUserManager:
             logger.error(f"Failed to move user {username}: {e}")
             return {"status": "error", "message": str(e)}
 
-    def get_user_info(self, username: str) -> Dict:
+    def get_user_info(self, username: str) -> dict:
         """
         Get detailed user account information.
 
@@ -327,7 +326,7 @@ class ADUserManager:
                     value = user.get_attribute(attr)
                     if value:
                         info[attr] = value[0] if len(value) == 1 else value
-                except:
+                except Exception:
                     pass
 
             return {"status": "success", "user": info}
@@ -336,7 +335,7 @@ class ADUserManager:
             logger.error(f"Failed to get user info for {username}: {e}")
             return {"status": "error", "message": str(e)}
 
-    def find_inactive_users(self, days: int = 90) -> List[Dict]:
+    def find_inactive_users(self, days: int = 90) -> list[dict]:
         """
         Find users who haven't logged in for specified days.
 
@@ -364,7 +363,7 @@ class ADUserManager:
 
             from pyad import pyadcontainer
 
-            cutoff_date = datetime.now() - timedelta(days=days)
+            cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
             inactive_users = []
 
             ou = pyadcontainer.PyADContainer.from_dn(self.conn.base_dn)
@@ -382,7 +381,7 @@ class ADUserManager:
                                 else None,
                             }
                         )
-                except:
+                except Exception:
                     continue
 
             logger.info(f"Found {len(inactive_users)} inactive users")
@@ -392,7 +391,7 @@ class ADUserManager:
             logger.error(f"Failed to find inactive users: {e}")
             return []
 
-    def bulk_create_users(self, users: List[Dict]) -> Dict:
+    def bulk_create_users(self, users: list[dict]) -> dict:
         """
         Create multiple users from a list.
 
@@ -410,15 +409,15 @@ class ADUserManager:
             username, first_name, last_name, email, password, ou,
             department (optional), title (optional)
         """
-        results = {"success": [], "failed": []}
+        results: dict[str, list] = {"success": [], "failed": []}
 
         for user_data in users:
             result = self.create_user(
-                username=user_data.get("username"),
-                first_name=user_data.get("first_name"),
-                last_name=user_data.get("last_name"),
-                email=user_data.get("email"),
-                password=user_data.get("password"),
+                username=user_data.get("username") or "",
+                first_name=user_data.get("first_name") or "",
+                last_name=user_data.get("last_name") or "",
+                email=user_data.get("email") or "",
+                password=user_data.get("password") or "",
                 ou=user_data.get("ou", self.conn.base_dn),
                 department=user_data.get("department"),
                 title=user_data.get("title"),

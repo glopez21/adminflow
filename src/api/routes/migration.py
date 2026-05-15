@@ -20,7 +20,7 @@ Example:
     curl -X POST -H "X-API-Key: ad-admin-key-001" \
          -F "file=@users.csv" \
          http://localhost:8000/api/migration/csv
-    
+
     # Move users to new OU
     curl -X POST -H "Authorization: Bearer <token>" \
          -H "Content-Type: application/json" \
@@ -36,7 +36,7 @@ from fastapi import APIRouter, File, HTTPException, UploadFile
 
 import config.settings as settings
 from src.migration.ad_migration import ADMigrationManager
-from src.utils.ad_connection import ADConnection
+from src.utils.ad_connection import get_pooled_connection, release_connection
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -44,18 +44,17 @@ router = APIRouter()
 
 def get_migration_manager():
     """
-    Create and connect a migration manager instance.
+    Acquire a pooled AD connection and create a migration manager.
 
     Returns:
         tuple: (ADMigrationManager instance, AD connection)
     """
-    conn = ADConnection(
+    conn = get_pooled_connection(
         server=settings.AD_SERVER,
         username=settings.AD_USER,
         password=settings.AD_PASSWORD,
         base_dn=settings.AD_BASE_DN,
     )
-    conn.connect()
     return ADMigrationManager(conn), conn
 
 
@@ -94,9 +93,9 @@ async def migrate_from_csv(file: UploadFile = File(...)):
         result = migrator.migrate_users_from_csv(tmp_path)
         return result
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
     finally:
-        conn.disconnect()
+        release_connection(conn)
         if os.path.exists(tmp_path):
             os.remove(tmp_path)
 
@@ -132,7 +131,7 @@ async def batch_move_users(users: list, target_ou: str):
         result = migrator.batch_move_users(users, target_ou)
         return result
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.get("/export/{username}")
@@ -171,7 +170,7 @@ async def export_user_attributes(username: str):
         result = migrator.preserve_user_attributes(username)
         return result
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.post("/group-mapping")
@@ -203,7 +202,7 @@ async def create_group_mapping(mappings: dict):
         migrator.create_group_mapping(mappings)
         return {"status": "success", "mappings_count": len(mappings)}
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.post("/map-groups")
@@ -231,4 +230,4 @@ async def map_source_groups(source_groups: list, target_ou: str):
         result = migrator.map_source_groups(source_groups, target_ou)
         return result
     finally:
-        conn.disconnect()
+        release_connection(conn)

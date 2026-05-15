@@ -1,6 +1,6 @@
 """CRUD service for database models."""
 
-from typing import List, Optional
+
 
 from sqlalchemy.orm import Session
 
@@ -16,10 +16,10 @@ class SystemService:
         hostname: str,
         ip_address: str,
         system_type: str,
-        os: Optional[str] = None,
-        description: Optional[str] = None,
-        location: Optional[str] = None,
-        tags: Optional[str] = None,
+        os: str | None = None,
+        description: str | None = None,
+        location: str | None = None,
+        tags: str | None = None,
     ) -> System:
         """Create a new system in the inventory."""
         system = System(
@@ -37,13 +37,11 @@ class SystemService:
         return system
 
     @staticmethod
-    def get_system(db: Session, system_id: int) -> Optional[System]:
-        """Get system by ID."""
+    def get_system(db: Session, system_id: int) -> System | None:
         return db.query(System).filter(System.id == system_id).first()
 
     @staticmethod
-    def get_system_by_hostname(db: Session, hostname: str) -> Optional[System]:
-        """Get system by hostname."""
+    def get_system_by_hostname(db: Session, hostname: str) -> System | None:
         return db.query(System).filter(System.hostname == hostname).first()
 
     @staticmethod
@@ -51,8 +49,8 @@ class SystemService:
         db: Session,
         skip: int = 0,
         limit: int = 100,
-        status: Optional[str] = None,
-    ) -> List[System]:
+        status: str | None = None,
+    ) -> list[System]:
         """List systems with optional filtering."""
         query = db.query(System)
         if status:
@@ -64,7 +62,7 @@ class SystemService:
         db: Session,
         system_id: int,
         **kwargs,
-    ) -> Optional[System]:
+    ) -> System | None:
         """Update system attributes."""
         system = db.query(System).filter(System.id == system_id).first()
         if system:
@@ -108,12 +106,11 @@ class JobService:
         return job
 
     @staticmethod
-    def get_job(db: Session, job_id: int) -> Optional[ScheduledJob]:
-        """Get job by ID."""
+    def get_job(db: Session, job_id: int) -> ScheduledJob | None:
         return db.query(ScheduledJob).filter(ScheduledJob.id == job_id).first()
 
     @staticmethod
-    def list_jobs(db: Session, enabled: Optional[bool] = None) -> List[ScheduledJob]:
+    def list_jobs(db: Session, enabled: bool | None = None) -> list[ScheduledJob]:
         """List jobs with optional filtering."""
         query = db.query(ScheduledJob)
         if enabled is not None:
@@ -125,7 +122,7 @@ class JobService:
         db: Session,
         job_id: int,
         **kwargs,
-    ) -> Optional[ScheduledJob]:
+    ) -> ScheduledJob | None:
         """Update job attributes."""
         job = db.query(ScheduledJob).filter(ScheduledJob.id == job_id).first()
         if job:
@@ -145,11 +142,11 @@ class AuditService:
         db: Session,
         action: str,
         resource_type: str,
-        resource_name: Optional[str] = None,
-        user: Optional[str] = None,
-        status: Optional[str] = None,
-        details: Optional[str] = None,
-        ip_address: Optional[str] = None,
+        resource_name: str | None = None,
+        user: str | None = None,
+        status: str | None = None,
+        details: str | None = None,
+        ip_address: str | None = None,
     ) -> AuditLog:
         """Create a new audit log entry."""
         log = AuditLog(
@@ -171,9 +168,9 @@ class AuditService:
         db: Session,
         skip: int = 0,
         limit: int = 100,
-        action: Optional[str] = None,
-        resource_type: Optional[str] = None,
-    ) -> List[AuditLog]:
+        action: str | None = None,
+        resource_type: str | None = None,
+    ) -> list[AuditLog]:
         """List audit logs with optional filtering."""
         query = db.query(AuditLog)
         if action:

@@ -1,0 +1,514 @@
+2026-05-12 20:10:38,969 - root - INFO - ============================================================
+2026-05-12 20:10:38,970 - root - INFO - AdminFlow API Starting Up
+2026-05-12 20:10:38,970 - root - INFO - AD Server: dc01.yourdomain.com
+2026-05-12 20:10:38,970 - root - INFO - Base DN: dc=yourdomain,dc=com
+2026-05-12 20:10:38,970 - root - INFO - ============================================================
+2026-05-12 20:10:48,733 - root - INFO - AdminFlow API Shutting Down...
+2026-05-12 20:10:48,733 - root - INFO - ============================================================
+2026-05-12 20:12:09,764 - root - INFO - ============================================================
+2026-05-12 20:12:09,764 - root - INFO - AdminFlow API Starting Up
+2026-05-12 20:12:09,764 - root - INFO - AD Server: dc01.yourdomain.com
+2026-05-12 20:12:09,764 - root - INFO - Base DN: dc=yourdomain,dc=com
+2026-05-12 20:12:09,764 - root - INFO - ============================================================
+2026-05-12 20:12:17,619 - root - INFO - AdminFlow API Shutting Down...
+2026-05-12 20:12:17,619 - root - INFO - ============================================================
+2026-05-12 20:20:20,006 - root - INFO - ============================================================
+2026-05-12 20:20:20,007 - root - INFO - AdminFlow API Starting Up
+2026-05-12 20:20:20,007 - root - INFO - AD Server: dc01.yourdomain.com
+2026-05-12 20:20:20,007 - root - INFO - Base DN: dc=yourdomain,dc=com
+2026-05-12 20:20:20,007 - root - INFO - ============================================================
+2026-05-12 20:20:20,266 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:20:25,449 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:20:25,550 - root - INFO - AdminFlow API Shutting Down...
+2026-05-12 20:20:25,550 - root - INFO - ============================================================
+2026-05-12 20:21:11,617 - root - INFO - ============================================================
+2026-05-12 20:21:11,617 - root - INFO - AdminFlow API Starting Up
+2026-05-12 20:21:11,617 - root - INFO - AD Server: dc01.yourdomain.com
+2026-05-12 20:21:11,617 - root - INFO - Base DN: dc=yourdomain,dc=com
+2026-05-12 20:21:11,617 - root - INFO - ============================================================
+2026-05-12 20:21:11,907 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:21:17,058 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:21:17,064 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:21:17,067 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:21:17,071 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:21:17,074 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:21:17,078 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:21:22,102 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:21:22,108 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:21:22,111 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:21:22,116 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:21:22,117 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:21:22,118 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:21:22,118 - root - ERROR - Unhandled exception on /api/security/privileged: Must be running Windows in order to use pyad.
+Traceback (most recent call last):
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 674, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 328, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/src/api/routes/security.py", line 101, in get_privileged_accounts
+    auditor, conn = get_security_auditor()
+                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/src/api/routes/security.py", line 57, in get_security_auditor
+    return ADSecurityAuditor(conn), conn
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/src/security/ad_security.py", line 87, in __init__
+    import pyad
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/pyad/__init__.py", line 2, in <module>
+    from .adbase import set_defaults as pyad_setdefaults
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/pyad/adbase.py", line 12, in <module>
+    raise Exception("Must be running Windows in order to use pyad.")
+Exception: Must be running Windows in order to use pyad.
+2026-05-12 20:21:22,122 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:21:22,122 - root - ERROR - Unhandled exception on /api/security/password-policy: Must be running Windows in order to use pyad.
+Traceback (most recent call last):
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 674, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 328, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/src/api/routes/security.py", line 121, in check_password_policy
+    auditor, conn = get_security_auditor()
+                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/src/api/routes/security.py", line 57, in get_security_auditor
+    return ADSecurityAuditor(conn), conn
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/src/security/ad_security.py", line 87, in __init__
+    import pyad
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/pyad/__init__.py", line 2, in <module>
+    from .adbase import set_defaults as pyad_setdefaults
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/pyad/adbase.py", line 12, in <module>
+    raise Exception("Must be running Windows in order to use pyad.")
+Exception: Must be running Windows in order to use pyad.
+2026-05-12 20:21:22,129 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:21:22,129 - root - ERROR - Unhandled exception on /api/security/locked: Must be running Windows in order to use pyad.
+Traceback (most recent call last):
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 674, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 328, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/src/api/routes/security.py", line 166, in get_locked_accounts
+    auditor, conn = get_security_auditor()
+                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/src/api/routes/security.py", line 57, in get_security_auditor
+    return ADSecurityAuditor(conn), conn
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/src/security/ad_security.py", line 87, in __init__
+    import pyad
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/pyad/__init__.py", line 2, in <module>
+    from .adbase import set_defaults as pyad_setdefaults
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/pyad/adbase.py", line 12, in <module>
+    raise Exception("Must be running Windows in order to use pyad.")
+Exception: Must be running Windows in order to use pyad.
+2026-05-12 20:21:22,135 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:21:22,135 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:21:22,136 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:21:22,136 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:21:22,140 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:21:22,140 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:21:22,141 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:21:22,141 - root - ERROR - Unhandled exception on /api/groups/: Must be running Windows in order to use pyad.
+Traceback (most recent call last):
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 674, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 328, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/src/api/routes/groups.py", line 81, in create_group
+    manager, conn = get_group_manager()
+                    ^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/src/api/routes/groups.py", line 60, in get_group_manager
+    return ADGroupManager(conn), conn
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/src/user_management/group_management.py", line 70, in __init__
+    import pyad
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/pyad/__init__.py", line 2, in <module>
+    from .adbase import set_defaults as pyad_setdefaults
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/pyad/adbase.py", line 12, in <module>
+    raise Exception("Must be running Windows in order to use pyad.")
+Exception: Must be running Windows in order to use pyad.
+2026-05-12 20:21:22,143 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:21:22,143 - root - ERROR - Unhandled exception on /api/groups/user/jdoe/groups: Must be running Windows in order to use pyad.
+Traceback (most recent call last):
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 674, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 328, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/src/api/routes/groups.py", line 202, in get_user_groups
+    manager, conn = get_group_manager()
+                    ^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/src/api/routes/groups.py", line 60, in get_group_manager
+    return ADGroupManager(conn), conn
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/src/user_management/group_management.py", line 70, in __init__
+    import pyad
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/pyad/__init__.py", line 2, in <module>
+    from .adbase import set_defaults as pyad_setdefaults
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/pyad/adbase.py", line 12, in <module>
+    raise Exception("Must be running Windows in order to use pyad.")
+Exception: Must be running Windows in order to use pyad.
+2026-05-12 20:21:22,146 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:21:22,146 - root - ERROR - Unhandled exception on /api/groups/Domain-Admins/members: Must be running Windows in order to use pyad.
+Traceback (most recent call last):
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 674, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 328, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/src/api/routes/groups.py", line 115, in get_group_members
+    manager, conn = get_group_manager()
+                    ^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/src/api/routes/groups.py", line 60, in get_group_manager
+    return ADGroupManager(conn), conn
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/src/user_management/group_management.py", line 70, in __init__
+    import pyad
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/pyad/__init__.py", line 2, in <module>
+    from .adbase import set_defaults as pyad_setdefaults
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/pyad/adbase.py", line 12, in <module>
+    raise Exception("Must be running Windows in order to use pyad.")
+Exception: Must be running Windows in order to use pyad.
+2026-05-12 20:21:22,148 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:21:22,148 - root - ERROR - Unhandled exception on /api/groups/empty: Must be running Windows in order to use pyad.
+Traceback (most recent call last):
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 674, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 328, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/src/api/routes/groups.py", line 228, in get_empty_groups
+    manager, conn = get_group_manager()
+                    ^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/src/api/routes/groups.py", line 60, in get_group_manager
+    return ADGroupManager(conn), conn
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/src/user_management/group_management.py", line 70, in __init__
+    import pyad
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/pyad/__init__.py", line 2, in <module>
+    from .adbase import set_defaults as pyad_setdefaults
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/pyad/adbase.py", line 12, in <module>
+    raise Exception("Must be running Windows in order to use pyad.")
+Exception: Must be running Windows in order to use pyad.
+2026-05-12 20:21:22,303 - root - INFO - AdminFlow API Shutting Down...
+2026-05-12 20:21:22,304 - root - INFO - ============================================================
+2026-05-12 20:22:04,801 - root - INFO - ============================================================
+2026-05-12 20:22:04,801 - root - INFO - AdminFlow API Starting Up
+2026-05-12 20:22:04,801 - root - INFO - AD Server: dc01.yourdomain.com
+2026-05-12 20:22:04,801 - root - INFO - Base DN: dc=yourdomain,dc=com
+2026-05-12 20:22:04,801 - root - INFO - ============================================================
+2026-05-12 20:22:07,534 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:22:07,535 - root - ERROR - Unhandled exception on /api/security/privileged: Must be running Windows in order to use pyad.
+Traceback (most recent call last):
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 674, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 328, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/src/api/routes/security.py", line 101, in get_privileged_accounts
+    auditor, conn = get_security_auditor()
+                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/src/api/routes/security.py", line 57, in get_security_auditor
+    return ADSecurityAuditor(conn), conn
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/w01f/projects/adminflow/src/security/ad_security.py", line 87, in __init__
+    import pyad
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/pyad/__init__.py", line 2, in <module>
+    from .adbase import set_defaults as pyad_setdefaults
+  File "/home/w01f/projects/adminflow/.venv/lib/python3.11/site-packages/pyad/adbase.py", line 12, in <module>
+    raise Exception("Must be running Windows in order to use pyad.")
+Exception: Must be running Windows in order to use pyad.
+2026-05-12 20:22:27,773 - root - INFO - ============================================================
+2026-05-12 20:22:27,773 - root - INFO - AdminFlow API Starting Up
+2026-05-12 20:22:27,773 - root - INFO - AD Server: dc01.yourdomain.com
+2026-05-12 20:22:27,773 - root - INFO - Base DN: dc=yourdomain,dc=com
+2026-05-12 20:22:27,773 - root - INFO - ============================================================
+2026-05-12 20:22:30,502 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:22:30,503 - src.security.ad_security - WARNING - pyad not available - security audit functionality limited
+2026-05-12 20:22:30,503 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:22:30,508 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:22:30,509 - src.security.ad_security - WARNING - pyad not available - security audit functionality limited
+2026-05-12 20:22:30,509 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:22:30,514 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:22:30,514 - src.user_management.group_management - WARNING - pyad not available
+2026-05-12 20:22:30,514 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:22:30,693 - root - INFO - AdminFlow API Shutting Down...
+2026-05-12 20:22:30,694 - root - INFO - ============================================================
+2026-05-12 20:23:07,050 - root - INFO - ============================================================
+2026-05-12 20:23:07,050 - root - INFO - AdminFlow API Starting Up
+2026-05-12 20:23:07,050 - root - INFO - AD Server: dc01.yourdomain.com
+2026-05-12 20:23:07,050 - root - INFO - Base DN: dc=yourdomain,dc=com
+2026-05-12 20:23:07,050 - root - INFO - ============================================================
+2026-05-12 20:23:07,367 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:23:12,505 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:23:12,511 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:23:12,514 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:23:12,518 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:23:12,521 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:23:12,525 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:23:17,550 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:23:17,556 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:23:17,560 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:23:17,564 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:23:17,566 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:23:17,570 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:23:17,571 - src.security.ad_security - WARNING - pyad not available - security audit functionality limited
+2026-05-12 20:23:17,571 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:23:17,575 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:23:17,575 - src.security.ad_security - WARNING - pyad not available - security audit functionality limited
+2026-05-12 20:23:17,576 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:23:17,579 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:23:17,579 - src.security.ad_security - WARNING - pyad not available - security audit functionality limited
+2026-05-12 20:23:17,579 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:23:17,583 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:23:17,583 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:23:17,584 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:23:17,584 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:23:17,585 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:23:17,585 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:23:17,586 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:23:17,586 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:23:17,588 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:23:17,588 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:23:17,589 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:23:17,589 - src.user_management.group_management - WARNING - pyad not available
+2026-05-12 20:23:17,589 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:23:17,591 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:23:17,591 - src.user_management.group_management - WARNING - pyad not available
+2026-05-12 20:23:17,591 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:23:17,592 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:23:17,592 - src.user_management.group_management - WARNING - pyad not available
+2026-05-12 20:23:17,592 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:23:17,593 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:23:17,593 - src.user_management.group_management - WARNING - pyad not available
+2026-05-12 20:23:17,593 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:23:17,594 - src.utils.ad_connection - WARNING - pyad library not available. This module requires Windows with pywin32 installed. For Linux/macOS, use ldap3.
+2026-05-12 20:23:17,595 - src.migration.ad_migration - WARNING - pyad not available - migration functionality limited
+2026-05-12 20:23:17,595 - src.utils.ad_connection - INFO - Disconnected from AD server: dc01.yourdomain.com
+2026-05-12 20:23:17,753 - root - INFO - AdminFlow API Shutting Down...
+2026-05-12 20:23:17,754 - root - INFO - ============================================================

@@ -30,151 +30,79 @@ Example:
 
 import hashlib
 import logging
-from datetime import datetime, timedelta
-from typing import Optional
+import os
+from datetime import datetime, timedelta, timezone
+from typing import Any
 
 import jwt
 from fastapi import Depends, HTTPException
-from fastapi.security import APIKeyHeader, APIKeyQuery
+from fastapi.security import APIKeyHeader, APIKeyQuery, HTTPBearer
+from fastapi.security.http import HTTPAuthorizationCredentials
 from pydantic import BaseModel
 
-# Get logger for this module
+from config.settings import settings
+
 logger = logging.getLogger(__name__)
 
-
-# ============================================================================
-# SECURITY CONFIGURATION
-# ============================================================================
-# These should be moved to environment variables in production
-
-# Secret key for JWT token signing
-# IMPORTANT: Change this in production! Use environment variable:
-# os.environ.get("API_SECRET_KEY", "change-this-in-production")
-SECRET_KEY = "change-this-in-production-use-env-variable"
-
-# Algorithm used for JWT signing
-# HS256 is HMAC-SHA256, widely supported and secure
-ALGORITHM = "HS256"
-
-# Token expiration time in minutes
-# After this time, clients must obtain a new token
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
-
-
-# ============================================================================
-# API KEY MANAGEMENT
-# ============================================================================
-# Pre-configured API keys for different access levels
-# In production, store these securely (database, secrets manager)
-#
-# Access Levels:
-# - admin: Full read/write access to all endpoints
-# - automation: Automated scripts and CI/CD pipelines
-# - readonly: Monitoring and read-only operations
+SECRET_KEY = settings.jwt_secret_key
+ALGORITHM = settings.jwt_algorithm
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.jwt_expiration_minutes
 
 API_KEYS = {
-    "admin": "ad-admin-key-001",  # Full access - change in production!
-    "automation": "ad-auto-key-002",  # Automation access
-    "readonly": "ad-read-key-003",  # Read-only access
+    "admin": settings.api_key_ad_admin,
+    "automation": settings.api_key_ad_auto,
+    "readonly": settings.api_key_ad_read,
 }
 
+DEFAULT_API_KEYS = {"ad-admin-key-001", "ad-auto-key-002", "ad-read-key-003"}
 
-# ============================================================================
-# PYDANTIC MODELS
-# ============================================================================
-# Data models for request/response validation
+if not os.environ.get("ADMINFLOW_SUPPRESS_KEY_WARNING"):
+    for name, key in API_KEYS.items():
+        if key in DEFAULT_API_KEYS:
+            logger.warning(
+                "DEFAULT API KEY IN USE for '%s': set %s environment variable "
+                "to a unique value in production",
+                name,
+                f"API_KEY_{name.upper()}",
+            )
 
 
 class TokenData(BaseModel):
-    """
-    JWT token payload data.
-
-    Attributes:
-        username: The authenticated username
-        scopes: List of permission scopes (e.g., ["read", "write", "admin"])
-    """
-
     username: str
     scopes: list[str] = []
 
 
 class User(BaseModel):
-    """
-    User model for authentication.
-
-    Attributes:
-        username: Unique username identifier
-        password: User's password (plaintext for demo - use hashing in production)
-        scopes: Permission scopes granted to this user
-    """
-
     username: str
     password: str
     scopes: list[str] = ["read"]
 
 
-# ============================================================================
-# USER DATABASE (MOCK)
-# ============================================================================
-# This is a mock database for demonstration purposes.
-# In production, replace with actual database lookup.
-#
-# Default credentials: admin/admin123
-# WARNING: Change these in production!
+def _hash_password(password: str) -> str:
+    return hashlib.sha256(password.encode()).hexdigest()
 
-USERS_DB = {
+
+USERS_DB: dict[str, dict[str, Any]] = {
     "admin": {
         "username": "admin",
-        "password": "admin123",
+        "password": _hash_password("admin123"),
         "scopes": ["read", "write", "admin"],
     },
     "service": {
         "username": "service",
-        "password": "service123",
+        "password": _hash_password("service123"),
         "scopes": ["read", "write"],
     },
-    "viewer": {"username": "viewer", "password": "viewer123", "scopes": ["read"]},
+    "viewer": {
+        "username": "viewer",
+        "password": _hash_password("viewer123"),
+        "scopes": ["read"],
+    },
 }
 
 
-# ============================================================================
-# PASSWORD UTILITIES
-# ============================================================================
-
-
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """
-    Verify a plain password against a hashed password.
-
-    In this demo implementation, plain comparison is used.
-    In production, use proper password hashing (bcrypt, argon2).
-
-    Args:
-        plain_password: The plain text password to verify
-        hashed_password: The stored hash to compare against
-
-    Returns:
-        bool: True if password matches, False otherwise
-    """
-    # In production, use: bcrypt.checkpw(plain_password.encode(), hashed_password.encode())
-    return plain_password == hashed_password
-
-
-def get_password_hash(password: str) -> str:
-    """
-    Generate hash of a password for storage.
-
-    Note: SHA-256 is NOT suitable for password hashing!
-    Use bcrypt, scrypt, or argon2 in production.
-
-    Args:
-        password: Plain text password to hash
-
-    Returns:
-        str: Hexadecimal hash string
-    """
-    # In production, use: bcrypt.hashpw(password.encode(), bcrypt.gensalt())
-    return hashlib.sha256(password.encode()).hexdigest()
+    return _hash_password(plain_password) == hashed_password
 
 
 # ============================================================================
@@ -182,7 +110,7 @@ def get_password_hash(password: str) -> str:
 # ============================================================================
 
 
-def authenticate_user(username: str, password: str) -> Optional[User]:
+def authenticate_user(username: str, password: str) -> User | None:
     """
     Authenticate a user with username and password.
 
@@ -215,7 +143,7 @@ def authenticate_user(username: str, password: str) -> Optional[User]:
     )
 
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     """
     Create a JWT access token with embedded user data.
 
@@ -237,10 +165,10 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     # Set expiration time
     if expires_delta:
         # Use custom expiration if provided
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(timezone.utc) + expires_delta
     else:
         # Use default expiration from config
-        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
     # Add expiration claim to payload
     to_encode.update({"exp": expire})
@@ -274,8 +202,8 @@ def verify_token(token: str) -> TokenData:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
         # Extract username from subject claim
-        username: str = payload.get("sub")
-        if username is None:
+        username = payload.get("sub")
+        if username is None or not isinstance(username, str):
             raise HTTPException(
                 status_code=401, detail="Invalid token: missing subject"
             )
@@ -284,11 +212,9 @@ def verify_token(token: str) -> TokenData:
         return TokenData(username=username, scopes=payload.get("scopes", []))
 
     except jwt.ExpiredSignatureError:
-        # Token has expired
-        raise HTTPException(status_code=401, detail="Token has expired")
-    except jwt.JWTError as e:
-        # Other JWT errors (invalid signature, malformed token)
-        raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")
+        raise HTTPException(status_code=401, detail="Token has expired") from None
+    except jwt.PyJWTError as e:
+        raise HTTPException(status_code=401, detail=f"Invalid token: {e}") from e
 
 
 # ============================================================================
@@ -302,7 +228,8 @@ def verify_token(token: str) -> TokenData:
 api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 # API key from api_key query parameter
-api_key_query = APIKeyQuery(name="api_key", auto=False)
+api_key_query = APIKeyQuery(name="api_key", auto_error=False)
+bearer_scheme = HTTPBearer(auto_error=False)
 
 
 # ============================================================================
@@ -311,9 +238,9 @@ api_key_query = APIKeyQuery(name="api_key", auto=False)
 
 
 async def get_current_user(
-    token: str = Depends(lambda: None),
-    api_key: Optional[str] = Depends(api_key_header),
-    query_key: Optional[str] = Depends(api_key_query),
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+    api_key: str | None = Depends(api_key_header),
+    query_key: str | None = Depends(api_key_query),
 ):
     """
     FastAPI dependency for authentication.
@@ -373,9 +300,8 @@ async def get_current_user(
     # -----------------------------------------------------------------------
     # Method 3: Check JWT token (from Authorization header)
     # -----------------------------------------------------------------------
-    if token:
-        # Token will be verified and converted by other dependencies
-        return verify_token(token)
+    if credentials is not None:
+        return verify_token(credentials.credentials)
 
     # -----------------------------------------------------------------------
     # No credentials provided

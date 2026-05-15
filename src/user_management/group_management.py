@@ -40,7 +40,6 @@ Requirements:
 """
 
 import logging
-from typing import Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +70,7 @@ class ADGroupManager:
             import pyad
 
             self.pyad = pyad
-        except ImportError:
+        except Exception:
             logger.warning("pyad not available")
 
     def create_group(
@@ -79,8 +78,8 @@ class ADGroupManager:
         group_name: str,
         group_scope: str = "Global",
         group_type: str = "Security",
-        ou: str = None,
-    ) -> Dict:
+        ou: str | None = None,
+    ) -> dict:
         """
         Create a new AD security or distribution group.
 
@@ -119,7 +118,7 @@ class ADGroupManager:
             if not ou:
                 ou = self.conn.base_dn
 
-            group = pyadgroup.create(
+            pyadgroup.create(
                 name=group_name, group_scope=group_scope, group_type=group_type, ou=ou
             )
 
@@ -130,7 +129,7 @@ class ADGroupManager:
             logger.error(f"Failed to create group {group_name}: {e}")
             return {"status": "error", "message": str(e)}
 
-    def add_member(self, group_name: str, member_dn: str) -> Dict:
+    def add_member(self, group_name: str, member_dn: str) -> dict:
         """
         Add a member to a group.
 
@@ -166,7 +165,7 @@ class ADGroupManager:
             logger.error(f"Failed to add member to group {group_name}: {e}")
             return {"status": "error", "message": str(e)}
 
-    def remove_member(self, group_name: str, member_dn: str) -> Dict:
+    def remove_member(self, group_name: str, member_dn: str) -> dict:
         """
         Remove a member from a group.
 
@@ -196,7 +195,7 @@ class ADGroupManager:
             logger.error(f"Failed to remove member from group {group_name}: {e}")
             return {"status": "error", "message": str(e)}
 
-    def get_group_members(self, group_name: str) -> List[str]:
+    def get_group_members(self, group_name: str) -> list[str]:
         """
         Get all members of a group.
 
@@ -228,7 +227,7 @@ class ADGroupManager:
             logger.error(f"Failed to get members of group {group_name}: {e}")
             return []
 
-    def get_user_groups(self, username: str) -> List[str]:
+    def get_user_groups(self, username: str) -> list[str]:
         """
         Get all groups a user is member of.
 
@@ -265,7 +264,7 @@ class ADGroupManager:
             logger.error(f"Failed to get groups for user {username}: {e}")
             return []
 
-    def find_empty_groups(self) -> List[str]:
+    def find_empty_groups(self) -> list[str]:
         """
         Find groups with no members.
 
@@ -300,7 +299,7 @@ class ADGroupManager:
                     members = group.get_members()
                     if len(members) == 0:
                         empty_groups.append(group.get_attribute("cn")[0])
-                except:
+                except Exception:
                     continue
 
             logger.info(f"Found {len(empty_groups)} empty groups")
@@ -310,7 +309,7 @@ class ADGroupManager:
             logger.error(f"Failed to find empty groups: {e}")
             return []
 
-    def bulk_add_members(self, group_name: str, members: List[str]) -> Dict:
+    def bulk_add_members(self, group_name: str, members: list[str]) -> dict:
         """
         Add multiple members to a group.
 

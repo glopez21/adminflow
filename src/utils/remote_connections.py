@@ -46,11 +46,11 @@ Requirements:
 """
 
 import logging
+import os
 import socket
 import subprocess
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict
 
 logger = logging.getLogger(__name__)
 
@@ -89,7 +89,7 @@ class ConnectionResult:
 
     success: bool
     message: str
-    details: Dict = None
+    details: dict | None = None
 
 
 class SSHHandler:
@@ -114,7 +114,7 @@ class SSHHandler:
     """
 
     def __init__(
-        self, host: str, port: int = 22, username: str = None, password: str = None
+        self, host: str, port: int = 22, username: str | None = None, password: str | None = None
     ):
         """
         Initialize SSH handler with target and credentials.
@@ -249,7 +249,7 @@ class RDPHandler:
     """
 
     def __init__(
-        self, host: str, port: int = 3389, username: str = None, password: str = None
+        self, host: str, port: int = 3389, username: str | None = None, password: str | None = None
     ):
         """
         Initialize RDP handler with target and credentials.
@@ -311,7 +311,7 @@ class RDPHandler:
         Note:
             Uses mstsc command which is Windows-only.
         """
-        if subprocess.os.name == "nt":
+        if os.name == "nt":
             subprocess.Popen(["mstsc", "/v:" + self.host])
         else:
             logger.warning("RDP only available on Windows")
@@ -330,7 +330,7 @@ class VNCHandler:
         password: VNC password (optional)
     """
 
-    def __init__(self, host: str, port: int = 5900, password: str = None):
+    def __init__(self, host: str, port: int = 5900, password: str | None = None):
         """
         Initialize VNC handler with target and credentials.
 
@@ -393,7 +393,7 @@ class WinRMHandler:
     """
 
     def __init__(
-        self, host: str, port: int = 5985, username: str = None, password: str = None
+        self, host: str, port: int = 5985, username: str | None = None, password: str | None = None
     ):
         """
         Initialize WinRM handler with target and credentials.
@@ -456,10 +456,6 @@ class WinRMHandler:
             from requests.auth import HTTPBasicAuth
 
             url = f"http://{self.host}:{self.port}/wsman"
-            headers = {
-                "Content-Type": "application/soap+xml",
-                "WSManAction": "http://schemas.microsoft.com/wbem/wsman/1/windows/shell/Command",
-            }
 
             if self.username and self.password:
                 auth = HTTPBasicAuth(self.username, self.password)
@@ -512,7 +508,7 @@ class SMBHandler:
     """
 
     def __init__(
-        self, host: str, port: int = 445, username: str = None, password: str = None
+        self, host: str, port: int = 445, username: str | None = None, password: str | None = None
     ):
         """
         Initialize SMB handler with target and credentials.
@@ -564,7 +560,7 @@ class SMBHandler:
             ConnectionResult with share listing or error
         """
         try:
-            if subprocess.os.name == "nt":
+            if os.name == "nt":
                 result = subprocess.run(
                     ["net", "view", f"\\\\{self.host}"],
                     capture_output=True,
@@ -626,10 +622,10 @@ class ConnectionFactory:
     def create_handler(
         connection_type: str,
         host: str,
-        port: int = None,
-        username: str = None,
-        password: str = None,
-    ):
+        port: int | None = None,
+        username: str | None = None,
+        password: str | None = None,
+    ) -> SSHHandler | RDPHandler | VNCHandler | WinRMHandler | SMBHandler:
         """
         Create a connection handler for the specified type.
 
@@ -679,9 +675,9 @@ class ConnectionFactory:
     def test_connection(
         connection_type: str,
         host: str,
-        port: int = None,
-        username: str = None,
-        password: str = None,
+        port: int | None = None,
+        username: str | None = None,
+        password: str | None = None,
         timeout: int = 10,
     ) -> ConnectionResult:
         """
@@ -711,9 +707,9 @@ class ConnectionFactory:
         connection_type: str,
         host: str,
         command: str,
-        port: int = None,
-        username: str = None,
-        password: str = None,
+        port: int | None = None,
+        username: str | None = None,
+        password: str | None = None,
         timeout: int = 30,
     ) -> ConnectionResult:
         """

@@ -30,7 +30,7 @@ from fastapi import APIRouter
 
 import config.settings as settings
 from src.health_checks.ad_health import ADHealthChecker
-from src.utils.ad_connection import ADConnection
+from src.utils.ad_connection import get_pooled_connection, release_connection
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -38,18 +38,17 @@ router = APIRouter()
 
 def get_health_checker():
     """
-    Create and connect a health checker instance.
+    Acquire a pooled AD connection and create a health checker.
 
     Returns:
         tuple: (ADHealthChecker instance, AD connection)
     """
-    conn = ADConnection(
+    conn = get_pooled_connection(
         server=settings.AD_SERVER,
         username=settings.AD_USER,
         password=settings.AD_PASSWORD,
         base_dn=settings.AD_BASE_DN,
     )
-    conn.connect()
     return ADHealthChecker(conn), conn
 
 
@@ -84,7 +83,7 @@ async def health_all():
         result = checker.generate_health_report()
         return result
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.get("/replication")
@@ -111,7 +110,7 @@ async def check_replication():
         result = checker.check_replication()
         return result
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.get("/domain-controllers")
@@ -138,11 +137,11 @@ async def get_domain_controllers():
         result = checker.check_domain_controllers()
         return {"controllers": result}
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.get("/ldap")
-async def check_ldap(server: str = None):
+async def check_ldap(server: str | None = None):
     """
     Test LDAP connectivity to domain controllers.
 
@@ -168,7 +167,7 @@ async def check_ldap(server: str = None):
         result = checker.check_ldap_connectivity(server)
         return result
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.get("/fsmo")
@@ -202,7 +201,7 @@ async def check_fsmo():
         result = checker.check_fsmo_roles()
         return {"fsmo_roles": result}
     finally:
-        conn.disconnect()
+        release_connection(conn)
 
 
 @router.get("/dns")
@@ -233,4 +232,4 @@ async def check_dns():
         result = checker.check_dns_records()
         return {"dns_records": result}
     finally:
-        conn.disconnect()
+        release_connection(conn)

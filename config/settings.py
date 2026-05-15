@@ -1,7 +1,5 @@
 """AdminFlow Configuration Settings using Pydantic Settings."""
 
-from typing import Optional
-
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -52,9 +50,9 @@ class Settings(BaseSettings):
     jwt_algorithm: str = Field(default="HS256")
     jwt_expiration_minutes: int = Field(default=60)
 
-    azure_tenant_id: Optional[str] = Field(default=None)
-    azure_client_id: Optional[str] = Field(default=None)
-    azure_client_secret: Optional[str] = Field(default=None)
+    azure_tenant_id: str | None = Field(default=None)
+    azure_client_id: str | None = Field(default=None)
+    azure_client_secret: str | None = Field(default=None)
 
     cors_allowed_origins: list[str] = Field(default=["*"])
     cors_allow_credentials: bool = Field(default=True)
@@ -100,3 +98,18 @@ REPORT_OUTPUT_DIR = settings.report_output_dir
 
 LOG_LEVEL = settings.log_level
 LOG_FILE = settings.log_file
+
+DATABASE_URL = settings.database_url
+REDIS_URL = settings.redis_url
+
+API_SECRET_KEY = settings.api_secret_key
+JWT_SECRET_KEY = settings.jwt_secret_key
+JWT_ALGORITHM = settings.jwt_algorithm
+JWT_EXPIRATION_MINUTES = settings.jwt_expiration_minutes
+
+AZURE_TENANT_ID = settings.azure_tenant_id
+AZURE_CLIENT_ID = settings.azure_client_id
+AZURE_CLIENT_SECRET = settings.azure_client_secret
+
+CORS_ALLOWED_ORIGINS = settings.cors_allowed_origins
+CORS_ALLOW_CREDENTIALS = settings.cors_allow_credentials

@@ -9,6 +9,7 @@ Key Features:
 - Connection establishment and management
 - Connection testing and validation
 - Configuration-based connection factory
+- Connection pooling with acquire/release pattern
 - Platform-aware (Windows vs Linux)
 
 Requirements:
@@ -39,6 +40,9 @@ Note:
 """
 
 import logging
+import threading
+from collections import OrderedDict
+from datetime import datetime, timezone
 
 # Try to import pyad (Windows-only AD library)
 # pyad provides Python bindings for Active Directory via COM
@@ -232,8 +236,156 @@ def get_ad_connection(config: dict) -> ADConnection:
         >>> conn.connect()
     """
     return ADConnection(
-        server=config.get("AD_SERVER"),
-        username=config.get("AD_USER"),
-        password=config.get("AD_PASSWORD"),
-        base_dn=config.get("AD_BASE_DN"),
+        server=str(config.get("AD_SERVER", "")),
+        username=str(config.get("AD_USER", "")),
+        password=str(config.get("AD_PASSWORD", "")),
+        base_dn=str(config.get("AD_BASE_DN", "")),
     )
+
+
+class ADConnectionPool:
+    """Thread-safe pool of reusable AD connections.
+
+    Maintains a cache of ADConnection instances keyed by
+    ``server|username|base_dn``. Connections are re-used within their
+    TTL and evicted when stale or when the pool exceeds ``max_size``
+    (LRU eviction).
+
+    On Linux (where pyad is unavailable) the pool is effectively a
+    no-op — connections are created, not cached, to avoid holding
+    useless objects.
+
+    Usage::
+
+        pool = ADConnectionPool(max_size=10, ttl_seconds=300)
+        with pool.get_connection(
+            server="dc01.domain.com",
+            username="admin@domain.com",
+            password="****",
+            base_dn="dc=domain,dc=com",
+        ) as conn:
+            if conn.is_connected:
+                # perform AD operations
+                pass
+    """
+
+    def __init__(self, max_size: int = 10, ttl_seconds: int = 300):
+        self.max_size = max_size
+        self.ttl_seconds = ttl_seconds
+        self._pool: OrderedDict[str, ADConnection] = OrderedDict()
+        self._timestamps: dict[str, datetime] = {}
+        self._lock = threading.Lock()
+
+    def _make_key(self, server: str, username: str, base_dn: str) -> str:
+        return f"{server}|{username}|{base_dn}"
+
+    def acquire(
+        self, server: str, username: str, password: str, base_dn: str
+    ) -> ADConnection:
+        """Get a connection from the pool, creating one if necessary."""
+        key = self._make_key(server, username, base_dn)
+
+        with self._lock:
+            conn = self._pool.get(key)
+
+            if conn is not None:
+                age = datetime.now(timezone.utc) - self._timestamps.get(key, datetime.now(timezone.utc))
+                if age.total_seconds() < self.ttl_seconds and conn.is_connected:
+                    self._pool.move_to_end(key)
+                    logger.debug(f"Reusing pooled AD connection: {key}")
+                    return conn
+
+                conn.disconnect()
+                del self._pool[key]
+                del self._timestamps[key]
+
+            conn = ADConnection(server=server, username=username, password=password, base_dn=base_dn)
+            conn.connect()
+
+            if len(self._pool) >= self.max_size:
+                oldest_key, oldest_conn = next(iter(self._pool.items()))
+                oldest_conn.disconnect()
+                del self._pool[oldest_key]
+                del self._timestamps[oldest_key]
+
+            self._pool[key] = conn
+            self._timestamps[key] = datetime.now(timezone.utc)
+            logger.debug(f"Created new pooled AD connection: {key}")
+            return conn
+
+    def release(self, conn: ADConnection) -> None:
+        """Return a connection to the pool (marks it as available).
+
+        Connections whose underlying transport is dead are removed.
+        """
+        key = self._make_key(conn.server, conn.username, conn.base_dn)
+        with self._lock:
+            if key in self._pool and self._pool[key] is conn:
+                if not conn.is_connected:
+                    self._pool.pop(key, None)
+                    self._timestamps.pop(key, None)
+            else:
+                conn.disconnect()
+
+    def close_all(self) -> None:
+        """Disconnect and remove every connection in the pool."""
+        with self._lock:
+            for conn in self._pool.values():
+                try:
+                    conn.disconnect()
+                except Exception:
+                    pass
+            self._pool.clear()
+            self._timestamps.clear()
+            logger.info("All pooled AD connections closed")
+
+    def __del__(self) -> None:
+        self.close_all()
+
+
+# Global default pool instance
+_default_pool = ADConnectionPool()
+
+
+def get_pooled_connection(
+    server: str,
+    username: str,
+    password: str,
+    base_dn: str,
+    pool: ADConnectionPool | None = None,
+) -> ADConnection:
+    """Acquire an AD connection from the pool (or the global default pool).
+
+    Callers should use this instead of ``ADConnection`` directly when
+    they want connection reuse.  The caller is responsible for calling
+    ``release_connection(conn)`` when done.
+    """
+    p = pool or _default_pool
+    return p.acquire(server, username, password, base_dn)
+
+
+def release_connection(
+    conn: ADConnection, pool: ADConnectionPool | None = None
+) -> None:
+    """Release an AD connection back to the pool.
+
+    Args:
+        conn: The connection to release (obtained from ``get_pooled_connection``).
+        pool: Optional pool instance; uses the global default pool if omitted.
+    """
+    p = pool or _default_pool
+    p.release(conn)
+
+
+def close_all_pool_connections(pool: ADConnectionPool | None = None) -> None:
+    """Disconnect and remove every connection in the pool.
+
+    Should be called during application shutdown.
+    """
+    p = pool or _default_pool
+    p.close_all()
+
+
+def get_default_pool() -> ADConnectionPool:
+    """Return the global default AD connection pool."""
+    return _default_pool

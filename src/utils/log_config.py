@@ -2,14 +2,13 @@
 
 import logging
 import sys
-from typing import Any
 
 import structlog
 
 from config.settings import settings
 
 
-def configure_logging(log_level: str = None) -> None:
+def configure_logging(log_level: str | None = None) -> None:
     """Configure structured logging for the application."""
     log_level = log_level or settings.log_level
 
@@ -39,6 +38,6 @@ def configure_logging(log_level: str = None) -> None:
     )
 
 
-def get_logger(name: str | None = None) -> Any:
+def get_logger(name: str | None = None):
     """Get a structured logger instance."""
     return structlog.get_logger(name)

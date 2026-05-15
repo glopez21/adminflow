@@ -38,20 +38,21 @@ Requirements:
 
 import ipaddress
 import logging
+import os
 import socket
 import subprocess
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
 def scan_network(
     network_range: str,
-    scan_types: List[str] = None,
-    ports: List[int] = None,
+    scan_types: list[str] | None = None,
+    ports: list[int] | None = None,
     timeout: int = 3,
-) -> Dict:
+) -> dict:
     """
     Scan a network range for active hosts and services.
 
@@ -82,7 +83,7 @@ def scan_network(
     if ports is None:
         ports = [22, 80, 445, 3389]
 
-    results = {
+    results: dict[str, Any] = {
         "network": network_range,
         "hosts_found": [],
         "scan_time": None,
@@ -119,7 +120,7 @@ def scan_network(
     return results
 
 
-def scan_host(ip: str, scan_types: List[str], ports: List[int], timeout: int) -> Dict:
+def scan_host(ip: str, scan_types: list[str], ports: list[int], timeout: int) -> dict:
     """
     Scan a single host for availability and services.
 
@@ -135,7 +136,7 @@ def scan_host(ip: str, scan_types: List[str], ports: List[int], timeout: int) ->
     Returns:
         dict: Host scan results with alive status, ports, services, etc.
     """
-    result = {
+    result: dict[str, Any] = {
         "ip": ip,
         "alive": False,
         "ports": [],
@@ -180,14 +181,14 @@ def ping_host_quick(host: str, timeout: int = 3) -> bool:
         bool: True if host responds to ping, False otherwise
     """
     try:
-        param = "-n" if subprocess.os.name == "nt" else "-c"
+        param = "-n" if os.name == "nt" else "-c"
         result = subprocess.run(
             ["ping", param, "1", "-w", str(timeout * 1000), host],
             capture_output=True,
             timeout=timeout + 1,
         )
         return result.returncode == 0
-    except:
+    except Exception:
         return False
 
 
@@ -211,11 +212,11 @@ def check_port_quick(host: str, port: int, timeout: int = 3) -> bool:
         result = sock.connect_ex((host, port))
         sock.close()
         return result == 0
-    except:
+    except Exception:
         return False
 
 
-def reverse_dns_lookup(ip: str) -> Optional[str]:
+def reverse_dns_lookup(ip: str) -> str | None:
     """
     Perform reverse DNS lookup.
 
@@ -230,11 +231,11 @@ def reverse_dns_lookup(ip: str) -> Optional[str]:
     try:
         hostname, _, _ = socket.gethostbyaddr(ip)
         return hostname
-    except:
+    except Exception:
         return None
 
 
-def guess_os(ip: str, open_ports: List[int]) -> str:
+def guess_os(ip: str, open_ports: list[int]) -> str:
     """
     Guess operating system based on open ports.
 
@@ -273,8 +274,8 @@ def guess_os(ip: str, open_ports: List[int]) -> str:
 
 
 def check_target(
-    target: str, check_type: str, port: int = None, timeout: int = 10
-) -> Dict:
+    target: str, check_type: str, port: int | None = None, timeout: int = 10
+) -> dict:
     """
     Perform specific health check on a target.
 
@@ -295,11 +296,11 @@ def check_target(
         - service: Check if specific service is running
         - url: HTTP/HTTPS request to check web service
     """
-    result = {"target": target, "check_type": check_type, "timestamp": None}
+    result: dict[str, Any] = {"target": target, "check_type": check_type, "timestamp": None}
 
     import datetime
 
-    result["timestamp"] = datetime.datetime.now().isoformat()
+    result["timestamp"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
     if check_type == "ping":
         if ping_host_quick(target, timeout):
@@ -415,79 +416,24 @@ class ConnectionTester:
     def __init__(self, host: str, timeout: int = 10):
         self.host = host
         self.timeout = timeout
-        self.results = {}
+        self.results: dict[str, Any] = {}
 
-    def test_ssh(self, port: int = 22) -> Dict:
-        """
-        Test SSH connectivity.
-
-        Checks if SSH port (22) is accessible on the target.
-
-        Args:
-            port: SSH port number (default: 22)
-
-        Returns:
-            dict: Test result with status (open/closed/error)
-        """
+    def test_ssh(self, port: int = 22) -> dict:
         return self._test_port(port, "SSH")
 
-    def test_rdp(self, port: int = 3389) -> Dict:
-        """
-        Test RDP connectivity.
-
-        Checks if RDP port (3389) is accessible on the target.
-
-        Args:
-            port: RDP port number (default: 3389)
-
-        Returns:
-            dict: Test result with status
-        """
+    def test_rdp(self, port: int = 3389) -> dict:
         return self._test_port(port, "RDP")
 
-    def test_smb(self, port: int = 445) -> Dict:
-        """
-        Test SMB connectivity.
-
-        Checks if SMB port (445) is accessible on the target.
-
-        Args:
-            port: SMB port number (default: 445)
-
-        Returns:
-            dict: Test result with status
-        """
+    def test_smb(self, port: int = 445) -> dict:
         return self._test_port(port, "SMB")
 
-    def test_winrm(self, port: int = 5985) -> Dict:
-        """
-        Test WinRM connectivity.
-
-        Checks if WinRM port (5985) is accessible on the target.
-
-        Args:
-            port: WinRM port number (default: 5985)
-
-        Returns:
-            dict: Test result with status
-        """
+    def test_winrm(self, port: int = 5985) -> dict:
         return self._test_port(port, "WinRM")
 
-    def test_vnc(self, port: int = 5900) -> Dict:
-        """
-        Test VNC connectivity.
-
-        Checks if VNC port (5900) is accessible on the target.
-
-        Args:
-            port: VNC port number (default: 5900)
-
-        Returns:
-            dict: Test result with status
-        """
+    def test_vnc(self, port: int = 5900) -> dict:
         return self._test_port(port, "VNC")
 
-    def _test_port(self, port: int, service: str) -> Dict:
+    def _test_port(self, port: int, service: str) -> dict:
         """
         Generic port test for a service.
 
@@ -521,7 +467,7 @@ class ConnectionTester:
 
         return result
 
-    def test_all_common(self) -> List[Dict]:
+    def test_all_common(self) -> list[dict]:
         """
         Test all common remote access ports.
 
@@ -548,5 +494,5 @@ class ConnectionTester:
         for port, service in tests:
             results.append(self._test_port(port, service))
 
-        self.results = results
+        self.results = results  # type: ignore[assignment]
         return results

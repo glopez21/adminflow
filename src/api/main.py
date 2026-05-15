@@ -31,14 +31,8 @@ API Documentation:
 """
 
 import logging
-import sys
 from contextlib import asynccontextmanager
-from pathlib import Path
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-# FastAPI framework imports
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -47,9 +41,10 @@ import config.settings as settings
 
 # Import route modules - each handles a specific domain
 # Routes are imported and registered with the app
-from src.api.routes import groups, health, migration, security, systems, users
+from src.api.routes import auth, groups, health, migration, security, systems, users
 
 # Utility imports
+from src.utils.ad_connection import close_all_pool_connections
 from src.utils.logger import setup_logging
 
 # ============================================================================
@@ -98,6 +93,8 @@ async def lifespan(app: FastAPI):
     # -----------------------------------------------------------------------
     # Cleanup when application is stopping
     logging.info("AdminFlow API Shutting Down...")
+    close_all_pool_connections()
+    logging.info("All pooled connections closed")
     logging.info("=" * 60)
 
 
@@ -110,19 +107,19 @@ app = FastAPI(
     title="AdminFlow API",
     description="""
     ## Overview
-    AdminFlow provides a comprehensive REST API for managing Microsoft 
+    AdminFlow provides a comprehensive REST API for managing Microsoft
     Active Directory environments. It enables automation of user management,
     group operations, security audits, and system inventory tasks.
-    
+
     ## Authentication
     The API supports two authentication methods:
     - **API Keys**: Use 'X-API-Key' header or 'api_key' query parameter
     - **JWT Tokens**: Obtain via /api/auth/token endpoint
-    
+
     ## Rate Limiting
-    Currently no rate limiting is enforced. Consider implementing for 
+    Currently no rate limiting is enforced. Consider implementing for
     production deployments to prevent abuse.
-    
+
     ## Error Handling
     All endpoints return consistent JSON error responses with:
     - 400: Bad Request (invalid input)
@@ -150,8 +147,8 @@ app = FastAPI(
 # In production, restrict 'allow_origins' to specific domains
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with specific domains
-    allow_credentials=True,
+    allow_origins=settings.CORS_ALLOWED_ORIGINS,
+    allow_credentials=settings.CORS_ALLOW_CREDENTIALS,
     allow_methods=["*"],  # Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
     allow_headers=["*"],  # Allow all HTTP headers
 )
@@ -162,6 +159,10 @@ app.add_middleware(
 # ============================================================================
 # Include modular route handlers for different domains
 # Each router handles a specific area of functionality
+
+# Authentication endpoints (/api/auth)
+# Handles: token acquisition (JWT login)
+app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 
 # User management endpoints (/api/users)
 # Handles: create user, get user, disable, enable, reset password, move, inactive

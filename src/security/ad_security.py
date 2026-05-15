@@ -39,8 +39,8 @@ Requirements:
 """
 
 import logging
-from datetime import datetime
-from typing import Dict, List
+from datetime import datetime, timezone
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -87,10 +87,10 @@ class ADSecurityAuditor:
             import pyad
 
             self.pyad = pyad
-        except ImportError:
+        except Exception:
             logger.warning("pyad not available - security audit functionality limited")
 
-    def find_privileged_accounts(self) -> List[Dict]:
+    def find_privileged_accounts(self) -> list[dict]:
         """
         Find all accounts with privileged group memberships.
 
@@ -148,7 +148,7 @@ class ADSecurityAuditor:
             logger.error(f"Failed to find privileged accounts: {e}")
             return []
 
-    def check_password_policy_compliance(self) -> Dict:
+    def check_password_policy_compliance(self) -> dict:
         """
         Check password policy settings for compliance.
 
@@ -182,7 +182,7 @@ class ADSecurityAuditor:
                 "recommendations": ["Increase minimum password length to 12"]
             }
         """
-        results = {
+        results: dict[str, Any] = {
             "status": "unknown",
             "policy": {},
             "compliance": {},
@@ -262,7 +262,7 @@ class ADSecurityAuditor:
 
         return results
 
-    def find_inactive_accounts(self, days: int = 90) -> List[Dict]:
+    def find_inactive_accounts(self, days: int = 90) -> list[dict]:
         """
         Find accounts that have been inactive for the specified number of days.
 
@@ -288,7 +288,7 @@ class ADSecurityAuditor:
 
             from pyad import pyadcontainer
 
-            cutoff_date = datetime.now() - timedelta(days=days)
+            cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
             inactive_accounts = []
 
             ou = pyadcontainer.PyADContainer.from_dn(self.conn.base_dn)
@@ -319,7 +319,7 @@ class ADSecurityAuditor:
             logger.error(f"Failed to find inactive accounts: {e}")
             return []
 
-    def find_locked_accounts(self) -> List[Dict]:
+    def find_locked_accounts(self) -> list[dict]:
         """
         Find all currently locked user accounts.
 
@@ -360,7 +360,7 @@ class ADSecurityAuditor:
             logger.error(f"Failed to find locked accounts: {e}")
             return []
 
-    def audit_security_groups(self) -> Dict:
+    def audit_security_groups(self) -> dict:
         """
         Audit security groups for potential issues.
 
@@ -386,7 +386,7 @@ class ADSecurityAuditor:
         try:
             from pyad import pyadcontainer
 
-            results = {
+            results: dict[str, Any] = {
                 "total_groups": 0,
                 "empty_groups": [],
                 "large_groups": [],
@@ -443,7 +443,7 @@ class ADSecurityAuditor:
             logger.error(f"Security group audit failed: {e}")
             return {"status": "error", "message": str(e)}
 
-    def generate_security_report(self) -> Dict:
+    def generate_security_report(self) -> dict:
         """
         Generate comprehensive security audit report.
 
@@ -469,7 +469,7 @@ class ADSecurityAuditor:
             }
         """
         report = {
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "domain": self.conn.base_dn,
             "checks": {},
             "recommendations": [],

@@ -2,6 +2,7 @@
 
 import logging
 import os
+from typing import Any
 
 from celery import Celery
 
@@ -31,24 +32,49 @@ celery_app.conf.update(
 )
 
 
+_celery_pool: Any = None
+
+
+def _get_pool() -> Any:
+    global _celery_pool
+    if _celery_pool is None:
+        from src.utils.ad_connection import ADConnectionPool
+        _celery_pool = ADConnectionPool(max_size=5, ttl_seconds=600)
+    return _celery_pool
+
+
+def _pooled_conn():
+    """Create a pooled AD connection from environment variables."""
+    from src.utils.ad_connection import get_pooled_connection
+
+    return get_pooled_connection(
+        server=os.getenv("AD_SERVER", "dc01.local"),
+        username=os.getenv("AD_USER", "admin@local"),
+        password=os.getenv("AD_PASSWORD", ""),
+        base_dn=os.getenv("AD_BASE_DN", "dc=local"),
+        pool=_get_pool(),
+    )
+
+
 @celery_app.task(bind=True, name="adminflow.tasks.health_check")
 def run_health_check(self, check_type: str = "all") -> dict:
     """Run AD health check task."""
     try:
-        from src.health_checks.ad_health import ADHealthCheck
-        from src.utils.ad_connection import ADConnection
+        from src.health_checks.ad_health import ADHealthChecker
 
-        conn = ADConnection(
-            server=os.getenv("AD_SERVER", "dc01.local"),
-            username=os.getenv("AD_USER", "admin@local"),
-            password=os.getenv("AD_PASSWORD", ""),
-            base_dn=os.getenv("AD_BASE_DN", "dc=local"),
-        )
-        conn.connect()
+        conn = _pooled_conn()
 
-        health = ADHealthCheck(conn)
-        result = health.run_all_checks()
-        conn.disconnect()
+        check_type_map = {
+            "all": "generate_health_report",
+            "replication": "check_replication",
+            "dc": "check_domain_controllers",
+            "ldap": "check_ldap_connectivity",
+            "fsmo": "check_fsmo_roles",
+        }
+        checker = ADHealthChecker(conn)
+        method = getattr(checker, check_type_map.get(check_type, "generate_health_report"))
+        result = method()
+        _get_pool().release(conn)
 
         return {"status": "success", "checks": result}
     except Exception as e:
@@ -60,20 +86,21 @@ def run_health_check(self, check_type: str = "all") -> dict:
 def run_security_audit(self, audit_type: str = "all") -> dict:
     """Run security audit task."""
     try:
-        from src.security.ad_security import ADSecurity
-        from src.utils.ad_connection import ADConnection
+        from src.security.ad_security import ADSecurityAuditor
 
-        conn = ADConnection(
-            server=os.getenv("AD_SERVER", "dc01.local"),
-            username=os.getenv("AD_USER", "admin@local"),
-            password=os.getenv("AD_PASSWORD", ""),
-            base_dn=os.getenv("AD_BASE_DN", "dc=local"),
-        )
-        conn.connect()
+        conn = _pooled_conn()
 
-        security = ADSecurity(conn)
-        result = security.run_all_audits()
-        conn.disconnect()
+        audit_type_map = {
+            "all": "generate_security_report",
+            "privileged": "find_privileged_accounts",
+            "password": "check_password_policy_compliance",
+            "inactive": "find_inactive_accounts",
+            "locked": "find_locked_accounts",
+        }
+        auditor = ADSecurityAuditor(conn)
+        method = getattr(auditor, audit_type_map.get(audit_type, "generate_security_report"))
+        result = method()
+        _get_pool().release(conn)
 
         return {"status": "success", "audits": result}
     except Exception as e:
@@ -86,19 +113,12 @@ def find_inactive_users(self, days: int = 90) -> dict:
     """Find inactive users task."""
     try:
         from src.user_management.ad_user_manager import ADUserManager
-        from src.utils.ad_connection import ADConnection
 
-        conn = ADConnection(
-            server=os.getenv("AD_SERVER", "dc01.local"),
-            username=os.getenv("AD_USER", "admin@local"),
-            password=os.getenv("AD_PASSWORD", ""),
-            base_dn=os.getenv("AD_BASE_DN", "dc=local"),
-        )
-        conn.connect()
+        conn = _pooled_conn()
 
         manager = ADUserManager(conn)
         result = manager.find_inactive_users(days)
-        conn.disconnect()
+        _get_pool().release(conn)
 
         return {"status": "success", "inactive_users": result}
     except Exception as e:
@@ -111,6 +131,8 @@ def sync_azure_ad(self) -> dict:
     """Sync with Azure AD."""
     try:
         azure = create_azure_manager_from_config()
+        if azure is None:
+            return {"status": "error", "message": "Azure AD not configured"}
         users = azure.list_users()
         return {"status": "success", "user_count": len(users)}
     except Exception as e:
@@ -126,10 +148,9 @@ def run_network_scan(
 ) -> dict:
     """Run network scan task."""
     try:
-        from src.utils.network import NetworkScanner
+        from src.utils.network import scan_network
 
-        scanner = NetworkScanner()
-        result = scanner.scan_network(network_range, scan_types)
+        result = scan_network(network_range, scan_types)
         return {"status": "success", "results": result}
     except Exception as e:
         logger.error(f"Network scan failed: {e}")
@@ -141,15 +162,15 @@ def backup_configuration(self) -> dict:
     """Backup configuration task."""
     try:
         import json
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         config = {
             "ad_server": os.getenv("AD_SERVER"),
             "ad_base_dn": os.getenv("AD_BASE_DN"),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
-        backup_file = f"config_backup_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.json"
+        backup_file = f"config_backup_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.json"
         with open(backup_file, "w") as f:
             json.dump(config, f, indent=2)
 
